@@ -62,7 +62,7 @@ public class UserController {
                 && SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
             response.put("message", "you are not logged in!!!");
         } else {
-            //Call database, repository(userMapper),service
+            //Call database, repository(userMapper), service, retrieve info
             response.put("message", "you are logged in. current time is " + new Date().toString());
         }
 
@@ -128,17 +128,16 @@ public class UserController {
             return new ResponseEntity<>(response, HttpStatus.CONFLICT);
         }
         else {
-        	if(user_db.getEmail().equals(account.getEmail())){
-                this.accountService.updateAccount(user_db);
-                //response.put("message", "The account has been updated");
-                //return new ResponseEntity<>(response, HttpStatus.OK);
-                return new ResponseEntity<>("Updated Successfully",HttpStatus.OK);
+            	if(user_db.getEmail().equals(account.getEmail())){
+                    this.accountService.updateAccount(user_db);
+                    //response.put("message", "The account has been updated");
+                    //return new ResponseEntity<>(response, HttpStatus.OK);
+                    return new ResponseEntity<>("Updated Successfully",HttpStatus.OK);
+                }
+            	else {
+            		return new ResponseEntity<>("Updation failed",HttpStatus.BAD_REQUEST);
+            	}
             }
-        	else {
-        		return new ResponseEntity<>("Updation failed",HttpStatus.BAD_REQUEST);
-        	}
-        }
-        	        	
     }
 
 
@@ -150,10 +149,10 @@ public class UserController {
 
         String username = account.getEmail();
         String password = account.getPassword();
-        if (null == username || username.equals("") || null == password || password.equals("")) {
-            response.put("Warning", "Please enter username or password!");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
+//        if (null == username || username.equals("") || null == password || password.equals("")) {
+//            response.put("Warning", "Please enter username or password!");
+//            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+//        }
         if (!emailValidationUtil.isEmail(username)) {
             response.put("Warning", "Please use a valid email address as your username");
             return new ResponseEntity<>(response, HttpStatus.UNPROCESSABLE_ENTITY);
@@ -170,7 +169,7 @@ public class UserController {
 
         if (user_db == null) {
             accountService.addAccount(account);
-            response.put("message", "You have registered successfully!");
+            response.put("Message", "You have registered successfully!");
             return new ResponseEntity<>(response, HttpStatus.CREATED);
         } else {
             response.put("Warning", "The username already exists!");
@@ -181,153 +180,6 @@ public class UserController {
     
     }
 }
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-//	
-////	@RequestMapping(value = { "/", "/welcome**" }, method = RequestMethod.GET)
-////	public ModelAndView defaultPage() {
-////
-////	  ModelAndView model = new ModelAndView();
-////	  model.addObject("title", "Spring Security Login Form - Database Authentication");
-////	  model.addObject("message", "This is default page!");
-////	  model.setViewName("hello");
-////	  return model;
-////
-////	}
-//	
-//	
-//	
-//	
-//	
-//	
-//	
-//	
-//
-//  @Autowired
-//  private UserRepository userRepository;
-//  
-//  private UserService userService;
-//
-//  /**
-//   * Get all users list.
-//   *
-//   * @return the list
-//   */
-//  @GetMapping("/users")
-//  public List<User> getAllUsers() {
-//    return userRepository.findAll();
-//  }
-//
-//  /**
-//   * Gets users by id.
-//   *
-//   * @param userId the user id
-//   * @return the users by id
-//   * @throws ResourceNotFoundException the resource not found exception
-//   */
-//  @GetMapping("/users/{id}")
-//  public ResponseEntity<User> getUsersById(@PathVariable(value = "id") Long userId)
-//      throws ResourceNotFoundException {
-//	  
-//	  
-//
-//			
-//			
-//    User user =
-//        userRepository
-//            .findById(userId)
-//            .orElseThrow(() -> new ResourceNotFoundException("User not found on :: " + userId));
-//	// Lookup user in database by e-mail
-//	User userExists = userService.findByEmail(user.getEmail());
-//	System.out.println(userExists);
-//    return ResponseEntity.ok().body(user);
-//  }
-//
-//  /**
-//   * Create user user.
-//   *
-//   * @param user the user
-//   * @return the user
-//   */
-//  @PostMapping("/users")
-//  public User createUser(@Valid @RequestBody User user) {
-//    return userRepository.save(user);
-//  }
-//
-//  /**
-//   * Update user response entity.
-//   *
-//   * @param userId the user id
-//   * @param userDetails the user details
-//   * @return the response entity
-//   * @throws ResourceNotFoundException the resource not found exception
-//   */
-//  @PutMapping("/users/{id}")
-//  public ResponseEntity<User> updateUser(
-//      @PathVariable(value = "id") Long userId, @Valid @RequestBody User userDetails)
-//      throws ResourceNotFoundException {
-//
-//    User user =
-//        userRepository
-//            .findById(userId)
-//            .orElseThrow(() -> new ResourceNotFoundException("User not found on :: " + userId));
-//
-//    user.setEmail(userDetails.getEmail());
-//    user.setLastName(userDetails.getLastName());
-//    user.setFirstName(userDetails.getFirstName());
-//    user.setAccountUpdated(new Date());
-//    final User updatedUser = userRepository.save(user);
-//    return ResponseEntity.ok(updatedUser);
-//  }
-//
-//  /**
-//   * Delete user map.
-//   *
-//   * @param userId the user id
-//   * @return the map
-//   * @throws Exception the exception
-//   */
-//  @DeleteMapping("/user/{id}")
-//  public Map<String, Boolean> deleteUser(@PathVariable(value = "id") Long userId) throws Exception {
-//	  
-//	  
-//    User user =
-//        userRepository
-//            .findById(userId)
-//            .orElseThrow(() -> new ResourceNotFoundException("User not found on :: " + userId));
-//
-//    userRepository.delete(user);
-//    Map<String, Boolean> response = new HashMap<>();
-//    response.put("deleted", Boolean.TRUE);
-//    return response;
-//  }
+
 
 

@@ -92,4 +92,7 @@ public class UserAccountService implements UserDetailsService {
 //        return null;
     }
 
+//    public void insertAccount(Account account) {
+//        this.fakeAccountDaoImpl.insertAccount(account);
+//    }
 }
