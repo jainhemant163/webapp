@@ -8,13 +8,13 @@ jobs:
       - run:   
           name: Install required packages
           command: |
-            sudo yum update && suod yum install wget zip unzip openjdk-8-jdk -y
+            sudo yum update && sudo yum install wget zip unzip openjdk-8-jdk -y
       - run :
           name: Build Artifact
           command: |
             cd ~
             cd Downloads
-            cd Project
+            cd csye6225
             cd webapp
             cd WebApplication
             sudo apt-get update
