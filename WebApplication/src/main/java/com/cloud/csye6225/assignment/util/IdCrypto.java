@@ -29,7 +29,7 @@ public class IdCrypto {
 	    SecretKey key;
 
 	    public IdCrypto() throws Exception {
-	        myEncryptionKey = "ThisIsSpartanThisIsSpartan";
+	        myEncryptionKey = "ThisIsSpartaThisIsSparta";
 	        myEncryptionScheme = DESEDE_ENCRYPTION_SCHEME;
 	        arrayBytes = myEncryptionKey.getBytes(UNICODE_FORMAT);
 	        ks = new DESedeKeySpec(arrayBytes);
