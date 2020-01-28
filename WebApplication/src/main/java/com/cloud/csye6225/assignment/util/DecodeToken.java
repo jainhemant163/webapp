@@ -1,0 +1,40 @@
+/**
+ * 
+ */
+package com.cloud.csye6225.assignment.util;
+
+import java.util.Base64;
+
+/**
+ * @author jainh
+ *
+ */
+public class DecodeToken {
+	  public String[] decodedInfo = {"", ""};
+	    public String decodedString;
+
+	    public DecodeToken(String token) throws IllegalArgumentException {
+	        //Use base64 decoder to decode token and get the username and password
+	        Base64.Decoder decoder = Base64.getDecoder();
+	        this.decodedString = new String(decoder.decode(token));
+	    }
+
+	    public boolean isValid() {
+	        if(!decodedString.contains(":")) return false;
+	        else {
+	            decodedInfo = decodedString.split(":");
+	            if (decodedInfo.length!=2){
+	                return false;
+	            }
+	            return true;
+	        }
+	    }
+
+	    public String getUsername() {
+	        return decodedInfo[0];
+	    }
+
+	    public String getPassword() {
+	        return decodedInfo[1];
+	    }
+}
