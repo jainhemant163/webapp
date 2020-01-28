@@ -238,7 +238,8 @@ public class Sql {
 	            //result = new ArrayList<Account>();
 	            stmt.execute(sql);
 
-	        }catch (SQLException ex){
+	        }
+	        catch (SQLException ex){
 	            ex.printStackTrace();
 	        }catch(Exception ex){
 	            ex.printStackTrace();
