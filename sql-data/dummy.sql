@@ -17,8 +17,6 @@ VALUES (
 	"FooBazBar City"
 );
 
-use users_database;
-
 DROP TABLE IF EXISTS `users`;
 create table users
 (

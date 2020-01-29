@@ -7,9 +7,9 @@ jobs:
       - image: circleci/mysql:5.7
         environment:
           MYSQL_ROOT_PASSWORD: rootpw
-          MYSQL_DATABASE: users_database
-          MYSQL_USER: root
-          MYSQL_PASSWORD: Hemant@123
+          MYSQL_DATABASE: test_db
+          MYSQL_USER: user
+          MYSQL_PASSWORD: passw0rd
 
     steps:
       - checkout
@@ -17,7 +17,7 @@ jobs:
       # Our primary container isn't MYSQL so run a sleep command until it's ready.Added
           name: Waiting for MySQL to be ready
           command: |
-            for i in `seq 1 10`;
+            for i in `seq 1 60`;
             do
               nc -z 127.0.0.1 3306 && echo Success && exit 0
               echo -n .
@@ -25,14 +25,14 @@ jobs:
             done
             echo Failed waiting for MySQL && exit 1
       - run:
-          name: Install MySQL CLI; Import dummy data; run an example query for all tables
+          name: Install MySQL CLI; Import dummy data; run an example query
           command: |
             sudo apt-get update
             sudo apt-get install default-mysql-client
-            sudo mysql -h 127.0.0.1 -u root -pHemant@123 users_database < sql-data/dummy.sql
-            sudo mysql -h 127.0.0.1 -u root -pHemant@123 --execute="SELECT * FROM users_database.Persons"
-            sudo mysql -h 127.0.0.1 -u root -pHemant@123 --execute="SELECT * FROM users_database.users"
-            sudo mysql -h 127.0.0.1 -u root -pHemant@123 --execute="SELECT * FROM users_database.Bill"
+            sudo mysql -h 127.0.0.1 -u user -ppassw0rd test_db < sql-data/dummy.sql
+            sudo mysql -h 127.0.0.1 -u user -ppassw0rd --execute="SELECT * FROM test_db.Persons"
+            sudo mysql -h 127.0.0.1 -u user -ppassw0rd --execute="SELECT * FROM test_db.users"
+            sudo mysql -h 127.0.0.1 -u user -ppassw0rd --execute="SELECT * FROM test_db.Bill"
       - run:   
           name: Install required packages
           command: |
