@@ -4,12 +4,12 @@ jobs:
   build:
     docker:
       - image: circleci/openjdk:8u171-jdk
-      - image: circleci/mysql:8.0.4
+      - image: circleci/mysql:5.7
         environment:
           MYSQL_ROOT_PASSWORD: rootpw
-          MYSQL_DATABASE: test_db
-          MYSQL_USER: user
-          MYSQL_PASSWORD: passw0rd
+          MYSQL_DATABASE: users_database
+          MYSQL_USER: root
+          MYSQL_PASSWORD: Hemant@123
 
     steps:
       - checkout
@@ -29,8 +29,10 @@ jobs:
           command: |
             sudo apt-get update
             sudo apt-get install default-mysql-client
-            sudo mysql -h 127.0.0.1 -u user -ppassw0rd test_db < sql-data/dummy.sql
-            sudo mysql -h 127.0.0.1 -u user -ppassw0rd --execute="SELECT * FROM test_db.Persons"
+            sudo mysql -h 127.0.0.1 -u root -pHemant@123 users_database < sql-data/dummy.sql
+            sudo mysql -h 127.0.0.1 -u root -pHemant@123 --execute="SELECT * FROM users_database.Persons"
+            sudo mysql -h 127.0.0.1 -u root -pHemant@123 --execute="SELECT * FROM users_database.users"
+            sudo mysql -h 127.0.0.1 -u root -pHemant@123 --execute="SELECT * FROM users_database.Bill"
       - run:   
           name: Install required packages
           command: |
