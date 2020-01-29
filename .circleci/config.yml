@@ -4,16 +4,13 @@ jobs:
   build:
     docker:
       - image: circleci/openjdk:8u171-jdk
-<<<<<<< HEAD
-=======
       - image: circleci/mysql:8.0.4
         environment:
           MYSQL_ROOT_PASSWORD: rootpw
           MYSQL_DATABASE: test_db
           MYSQL_USER: user
           MYSQL_PASSWORD: passw0rd
-
->>>>>>> 767fb57971e734fb7ef10566fe76fd6b17e56870
+          
     steps:
       - checkout
       - run:
