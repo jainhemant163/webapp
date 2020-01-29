@@ -1,4 +1,5 @@
-version:2
+version: 2.1
+
 jobs:
   build:
     docker:
@@ -12,10 +13,6 @@ jobs:
       - run :
           name: Build Artifact
           command: |
-            cd ~
-            cd Downloads
-            cd csye6225
-            cd webapp
             cd WebApplication
             sudo apt-get update
             sudo apt install maven
