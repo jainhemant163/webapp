@@ -1,0 +1,19 @@
+version: 2.1
+
+jobs:
+  build:
+    docker:
+      - image: circleci/python:latest
+    steps:
+      - checkout
+      - run:   
+          name: Install required packages
+          command: |
+            sudo apt-get update && sudo apt-get install yum && sudo yum install wget zip unzip openjdk-8-jdk -y
+      - run :
+          name: Build Artifacts
+          command: |
+            cd WebApplication
+            sudo apt-get update
+            sudo apt install maven
+            mvn spring-boot:run
