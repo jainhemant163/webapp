@@ -9,7 +9,7 @@ jobs:
       - run:   
           name: Install required packages
           command: |
-            sudo apt-get update && sudo apt-get install yum && sudo yum install wget zip unzip openjdk-8-jdk -y
+            sudo apt-get update && sudo apt-get install yum && sudo apt install openjdk-8-jdk wget zip unzip -y
       - run :
           name: Build Artifacts
           command: |
