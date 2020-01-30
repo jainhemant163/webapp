@@ -25,7 +25,7 @@ jobs:
             done
             echo Failed waiting for MySQL && exit 1
       - run:
-          name: Install MySQL CLI; Import dummy data; run an example query
+          name: Install MySQL CLI; Import dummy data; run an example query and verify the output
           command: |
             sudo apt-get update
             sudo apt-get install default-mysql-client
