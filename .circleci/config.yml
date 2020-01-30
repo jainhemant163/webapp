@@ -45,6 +45,7 @@ jobs:
             sudo apt-get update
             sudo apt install maven
             mvn spring-boot:run
+            mvn -Dtest=WebApplicationTests test
 
 workflows:
   version: 2
