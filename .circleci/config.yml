@@ -4,7 +4,7 @@ jobs:
   build:
     docker:
       - image: circleci/openjdk:8u171-jdk
-      - image: circleci/mysql:8.0.4
+      - image: circleci/mysql:5.7
         environment:
           MYSQL_ROOT_PASSWORD: rootpw
           MYSQL_DATABASE: test_db
@@ -17,7 +17,7 @@ jobs:
       # Our primary container isn't MYSQL so run a sleep command until it's ready.
           name: Waiting for MySQL to be ready
           command: |
-            for i in `seq 1 10`;
+            for i in `seq 1 60`;
             do
               nc -z 127.0.0.1 3306 && echo Success && exit 0
               echo -n .
@@ -25,15 +25,18 @@ jobs:
             done
             echo Failed waiting for MySQL && exit 1
       - run:
-          name: Install MySQL CLI; Import dummy data; run an example query
+          name: Install MySQL CLI; Import dummy data; run an example query and verify the output
           command: |
+            sudo apt-get update
             sudo apt-get install default-mysql-client
-            mysql -h 127.0.0.1 -u user -p passw0rd test_db < sql-data/dummy.sql
-            mysql -h 127.0.0.1 -u user -p passw0rd --execute="SELECT * FROM test_db.Persons"
+            sudo mysql -h 127.0.0.1 -u user -ppassw0rd test_db < sql-data/dummy.sql
+            sudo mysql -h 127.0.0.1 -u user -ppassw0rd --execute="SELECT * FROM test_db.Persons"
+            sudo mysql -h 127.0.0.1 -u user -ppassw0rd --execute="SELECT * FROM test_db.users"
+            sudo mysql -h 127.0.0.1 -u user -ppassw0rd --execute="SELECT * FROM test_db.Bill"
       - run:   
           name: Install required packages
           command: |
-            sudo apt-get update && sudo apt-get install yum 
+            sudo apt-get update && sudo apt-get install wget zip unzip
       - run :
           name: Build Artifacts
           command: |
@@ -41,7 +44,7 @@ jobs:
             cd WebApplication
             sudo apt-get update
             sudo apt install maven
-            mvn spring-boot:run
+            mvn clean install
 
 workflows:
   version: 2
