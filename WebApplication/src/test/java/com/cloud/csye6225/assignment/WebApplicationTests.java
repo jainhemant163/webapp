@@ -58,16 +58,16 @@ public class WebApplicationTests {
 		Assert.assertNotNull(response.getBody());
 	}
 
-	@Test
-	public void testGetUserById() throws URISyntaxException {
-		   final String baseUrl = "http://localhost:"+port+"/";
-	        URI uri = new URI(baseUrl);       		
-//		HttpHeaders headers = new HttpHeaders();
-//		HttpEntity<String> entity = new HttpEntity<String>(null, headers);
-		User user = restTemplate.getForObject(uri + "/v1/user/self", User.class);
-		System.out.println(user.getUsername());
-		Assert.assertNotNull(user);
-	}
+//	@Test
+//	public void testGetUserById() throws URISyntaxException {
+//		   final String baseUrl = "http://localhost:"+port+"/";
+//	        URI uri = new URI(baseUrl);       		
+////		HttpHeaders headers = new HttpHeaders();
+////		HttpEntity<String> entity = new HttpEntity<String>(null, headers);
+//		User user = restTemplate.getForObject(uri + "/v1/user/self", User.class);
+//		System.out.println(user.getUsername());
+//		Assert.assertNotNull(user);
+//	}
 
 //	@Test
 //	public void testCreateUser() {
