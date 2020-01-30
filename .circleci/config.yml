@@ -44,7 +44,7 @@ jobs:
             cd WebApplication
             sudo apt-get update
             sudo apt install maven
-            mvn -Dtest=WebApplicationTests test
+            mvn clean install
 
 workflows:
   version: 2
