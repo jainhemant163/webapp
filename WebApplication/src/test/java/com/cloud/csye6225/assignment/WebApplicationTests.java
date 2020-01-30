@@ -1,63 +1,63 @@
-//package com.cloud.csye6225.assignment;
-//
-//import java.net.URI;
-//import java.net.URISyntaxException;
-//
-//import org.junit.Assert;
-//import org.junit.jupiter.api.Test;
-//import org.junit.runner.RunWith;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.context.SpringBootTest;
-//import org.springframework.boot.test.web.client.TestRestTemplate;
-//import org.springframework.boot.web.server.LocalServerPort;
-//import org.springframework.http.HttpEntity;
-//import org.springframework.http.HttpHeaders;
-//import org.springframework.http.HttpMethod;
-//import org.springframework.http.HttpStatus;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.security.core.userdetails.User;
-//import org.springframework.test.context.junit4.SpringRunner;
-//import org.springframework.web.client.HttpClientErrorException;
-//import org.springframework.web.client.RestTemplate;
-//
-//
-//
-//@RunWith(SpringRunner.class)
-//@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT)
-////@SpringBootTest(classes = WebApplicationTests.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-//public class WebApplicationTests {
-//
-//	@Autowired
-//	private TestRestTemplate restTemplate;
-//
-//	@LocalServerPort
-//	private int port;
-//
-//	private String getRootUrl() {
-//		return "http://localhost:" + port;
-//	}
-//
-//	@Test
-//	public void contextLoads() {
-//	}
-//
-//	@Test
-//	
-//	public void testGetAllUsers() throws URISyntaxException {
-//		
-//		  RestTemplate restTemplate = new RestTemplate();
-//	        
-//	        final String baseUrl = "http://localhost:"+port+"/";
-//	        URI uri = new URI(baseUrl);       		
-//		HttpHeaders headers = new HttpHeaders();
-//		HttpEntity<String> entity = new HttpEntity<String>(null, headers);
-//
-//		ResponseEntity<String> response = restTemplate.exchange(uri + "/",
-//				HttpMethod.GET, entity, String.class);
-//
-//		Assert.assertNotNull(response.getBody());
-//	}
-//
+package com.cloud.csye6225.assignment;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import org.junit.Assert;
+import org.junit.jupiter.api.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestTemplate;
+
+
+
+@RunWith(SpringRunner.class)
+@SpringBootTest(webEnvironment=SpringBootTest.WebEnvironment.RANDOM_PORT)
+//@SpringBootTest(classes = WebApplicationTests.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public class WebApplicationTests {
+
+	@Autowired
+	private TestRestTemplate restTemplate;
+
+	@LocalServerPort
+	private int port;
+
+	private String getRootUrl() {
+		return "http://localhost:" + port;
+	}
+
+	@Test
+	public void contextLoads() {
+	}
+
+	@Test
+	
+	public void testGetAllUsers() throws URISyntaxException {
+		
+		  RestTemplate restTemplate = new RestTemplate();
+	        
+	        final String baseUrl = "http://localhost:"+port+"/";
+	        URI uri = new URI(baseUrl);       		
+		HttpHeaders headers = new HttpHeaders();
+		HttpEntity<String> entity = new HttpEntity<String>(null, headers);
+
+		ResponseEntity<String> response = restTemplate.exchange(uri + "/",
+				HttpMethod.GET, entity, String.class);
+
+		Assert.assertNotNull(response.getBody());
+	}
+
 ////	@Test
 ////	public void testGetUserById() throws URISyntaxException {
 ////		   final String baseUrl = "http://localhost:"+port+"/";
@@ -109,4 +109,4 @@
 ////			Assert.assertEquals(e.getStatusCode(), HttpStatus.NOT_FOUND);
 ////		}
 ////	}
-//}
+}
