@@ -60,6 +60,7 @@ public class BillController {
 	@ResponseBody
 	public ResponseEntity<Bill> registerPost(@RequestBody String bill) {
 
+		
 		if (SecurityContextHolder.getContext().getAuthentication() != null
 				&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
 			// response.put("message", "you are not logged in!!!");
