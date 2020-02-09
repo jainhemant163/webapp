@@ -1,17 +1,6 @@
 version: 2.1
 
 jobs:
-  pr_check_job:
-    docker: 
-      - image: circleci/openjdk:8u171-jdk# the primary container, where your job's commands are run
-    steps:
-      - checkout # check out the code in the project directory
-      - run: echo "Running pr_check_job" # run the `echo` command
-      - run: 
-          command: |
-            cd WebApplication
-            ./mvnw clean install                
-                            
   build:
     docker:
       - image: circleci/openjdk:8u171-jdk
@@ -24,7 +13,6 @@ jobs:
 
     steps:
       - checkout
-      - run: echo "Running build on master" # run the `echo` command
       - run:
       # Our primary container isn't MYSQL so run a sleep command until it's ready.
           name: Waiting for MySQL to be ready
@@ -59,15 +47,6 @@ jobs:
             mvn clean install
 workflows:
   version: 2
-  pr_check:
-    jobs:
-      - pr_check_job                          
   build-deploy:
     jobs:
-      - build  
-         filters:
-            branches:
-              only: master      
-                  
-                     
-                          
+      - build     
