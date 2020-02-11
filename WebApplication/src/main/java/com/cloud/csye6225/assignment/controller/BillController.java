@@ -231,10 +231,10 @@ public class BillController {
             return new ResponseEntity<String>("please select a file!", HttpStatus.OK);
         }
         
-//          if(!attachment.getContentType().equals("image/jpg") && !attachment.getContentType().equals("image/jpeg")
-//                    && !attachment.getContentType().equals("application/pdf") && !attachment.getContentType().equals("image/png")){
-//                        return new ResponseEntity(HttpStatus.BAD_REQUEST);
-//                    }
+          if(!attachment.getContentType().equals("image/jpg") && !attachment.getContentType().equals("image/jpeg")
+                   &&  !attachment.getContentType().equals("application/pdf") && !attachment.getContentType().equals("image/png")){
+                        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                    }
 
         try {
             /** File will get saved to file system and database */
@@ -291,8 +291,21 @@ public class BillController {
          mapperObj.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS , false);
          String jsonResp = mapperObj.writeValueAsString(displayFile);
          System.out.println(jsonResp);
+         
+         
+         Gson gson = new Gson();
+
+         //convert java object to JSON format
+         String json = gson.toJson(jsonResp);    
+         
+         
          billById.setAttachment(jsonResp);        
          billService.updateBill(billById);
+         
+         
+         
+         
+         
         
         fileService.addFile(metaData);
         //fileService.updateFiles(files);
@@ -329,7 +342,7 @@ public class BillController {
 
 	// DELETE the file for the bill
 	@RequestMapping(value = "/v1/bill/{billId}/file/{fileId}", method = RequestMethod.DELETE)
-	public ResponseEntity<?> deleteFile(@PathVariable("billId") String billId, @PathVariable("fileId") String fileId) {
+	public ResponseEntity<?> deleteFile(@PathVariable("billId") String billId, @PathVariable("fileId") String fileId) throws IOException {
 		boolean isSuccess = false;
 		if (billId == null) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -346,13 +359,16 @@ public class BillController {
 				if (file == null) {
 					return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 				}
-				isSuccess = fileService.deleteFile(fileId);
-				Bill billById = billService.getBillById(billId);
-		        billService.updateBill(billById);
-
-
-
-				
+		        
+		        Path fileToDeletePath = Paths.get(UPLOADED_FOLDER + file.getFile_name());
+		        Files.delete(fileToDeletePath);
+		        isSuccess = fileService.deleteFile(fileId);
+		        Bill billById = billService.getBillById(billId);
+		    
+		         billById.setAttachment(null);
+		         billService.updateBill(billById);
+		       
+	
 				if (isSuccess)
 					return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
 				else
