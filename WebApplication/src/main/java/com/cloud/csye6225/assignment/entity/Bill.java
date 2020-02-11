@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.validation.constraints.Min;
 
 
 /**
@@ -26,9 +27,12 @@ public class Bill {
 
     private String[] categories;
     
+    
+    
     @Enumerated(EnumType.STRING)
     private Status paymentStatus;
     
+    private String attachment;
 
 public enum Status {
 	 paid, due, past_due, no_payment_required;
@@ -81,6 +85,21 @@ public Bill() {
 		this.paymentStatus = paymentStatus;
 	}
 
+	public Bill(String id, String created_ts, String updated_ts, String owner_id, String vendor, String bill_date,
+			String due_date, @Min(0) double amount_due, String[] categories, Status paymentStatus, String attachment) {
+		super();
+		this.id = id;
+		this.created_ts = created_ts;
+		this.updated_ts = updated_ts;
+		this.owner_id = owner_id;
+		this.vendor = vendor;
+		this.bill_date = bill_date;
+		this.due_date = due_date;
+		this.amount_due = amount_due;
+		this.categories = categories;
+		this.paymentStatus = paymentStatus;
+		this.attachment = attachment;
+	}
 
 	/**
 	 * @return the id
@@ -232,6 +251,17 @@ public Bill() {
 	 */
 	public void setPaymentStatus(Status paymentStatus) {
 		this.paymentStatus = paymentStatus;
+	}
+
+	
+
+	public String getAttachment() {
+		return attachment;
+	}
+
+
+	public void setAttachment(String attachment) {
+		this.attachment = attachment;
 	}
 
 

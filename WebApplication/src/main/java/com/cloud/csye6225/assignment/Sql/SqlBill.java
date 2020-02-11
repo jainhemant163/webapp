@@ -15,6 +15,7 @@ import java.util.List;
 
 import com.cloud.csye6225.assignment.entity.Bill;
 import com.cloud.csye6225.assignment.entity.Bill.Status;
+import com.cloud.csye6225.assignment.entity.FileUpload;
 
 /**
  * @author jainh
@@ -40,6 +41,25 @@ public class SqlBill {
 		}
 	}
 
+	// Need query
+	public FileUpload getFiles(String billId, Statement stmt) {
+		List<FileUpload> files = new ArrayList<FileUpload>();
+		try {
+
+			String query = "select * from File where billId='" + billId + "'";
+			ResultSet rs = stmt.executeQuery(query);
+
+			while (rs.next()) {
+
+			}
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+		}
+
+		return files.size() == 0 ? null : files.get(0);
+
+	}
+
 	public List<Bill> getBill() {
 		Connection conn = null;
 		Statement stmt = null;
@@ -55,6 +75,7 @@ public class SqlBill {
 
 			while (rs.next()) {
 				String id = rs.getString("id");
+				String files1 = rs.getString("attachment");
 				String created_ts = rs.getString("created_ts");
 				String updated_ts = rs.getString("updated_ts");
 				String owner_id = rs.getString("owner_id");
@@ -65,11 +86,14 @@ public class SqlBill {
 				String paymentStatus = rs.getString("paymentStatus");
 				String categories = rs.getString("categories");
 				String[] categoryElement = categories.split(",");
+				// Files attachment = rs.getString("attachment");
 
 				Bill item = new Bill(id, created_ts, updated_ts, owner_id, vendor, bill_date, due_date, amount_due,
 						categoryElement, Status.valueOf(paymentStatus));
 
+				item.setAttachment(files1);
 				result.add(item);
+
 			}
 
 			return result;
@@ -104,7 +128,7 @@ public class SqlBill {
 		try {
 			conn = getConnection();
 			stmt = conn.createStatement();
-			String sqlrecipe = "select id,created_ts,updated_ts,owner_id,vendor,bill_date,due_date,amount_due,categories,paymentStatus from Bill where id='"
+			String sqlrecipe = "select id,created_ts,updated_ts,owner_id,vendor,bill_date,due_date,amount_due,categories,paymentStatus,attachment from Bill where id='"
 					+ id + "'";
 			ResultSet rs = stmt.executeQuery(sqlrecipe);
 			result = new ArrayList<Bill>();
@@ -121,9 +145,10 @@ public class SqlBill {
 				String paymentStatus = rs.getString("paymentStatus");
 				String categories = rs.getString("categories");
 				String[] categoryElement = categories.split(",");
+				String attachment = rs.getString("attachment");
 
 				Bill item = new Bill(id, created_ts, updated_ts, owner_id, vendor, bill_date, due_date, amount_due,
-						categoryElement, Status.valueOf(paymentStatus));
+						categoryElement, Status.valueOf(paymentStatus), attachment);
 
 				result.add(item);
 
@@ -164,6 +189,8 @@ public class SqlBill {
 		String due_date = bill.getDue_date();
 		double amount_due = bill.getAmount_due();
 
+		String attachment = bill.getAttachment();
+
 		Calendar calendar = Calendar.getInstance();
 		java.util.Date time = calendar.getTime();
 		// String user_updated = time.toString();
@@ -180,6 +207,11 @@ public class SqlBill {
 							+ "vendor =\"%s\", " + "owner_id=\"%s\" where id=\"%s\"; ",
 					bill_date, due_date, amount_due, vendor, owner_id, id);
 			stmt.execute(query);
+
+			// Update query for the attachment
+
+			String query1 = "update Bill set attachment = " + "'" + attachment + "'" + "where id =" + "'" + id + "'" + ";";
+			stmt.execute(query1);
 
 		} catch (SQLException ex) {
 			ex.printStackTrace();
