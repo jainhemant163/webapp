@@ -3,6 +3,10 @@
  */
 package com.cloud.csye6225.assignment.Sql;
 
+import java.math.BigInteger;
+import java.security.GeneralSecurityException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -37,11 +41,23 @@ public class SqlFile {
 		}
 	}
 
-    public void insertFile(FileUpload files) {
+    public void insertFile(FileUpload files){
         String id = files.getId();
         String url = files.getUrl();
         String fileName = files.getFile_name();
         String uploadDate = files.getUpload_date();
+        
+        String s=fileName; 
+        MessageDigest m = null;
+		try {
+			m = MessageDigest.getInstance("MD5");
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+        m.update(s.getBytes(),0,s.length()); 
+        String hashedcode = new BigInteger(1,m.digest()).toString(16);
+        System.out.println("MD5: "+new BigInteger(1,m.digest()).toString(16));      
 
         Gson gson = new Gson();
         FileUpload attachmenttemp = new FileUpload(fileName, id, url, uploadDate);
@@ -55,8 +71,10 @@ public class SqlFile {
         try {
             conn = getConnection();
             stmt = conn.createStatement();
-            String sql = "insert into File (file_name,id,url,upload_date) values ('" + fileName + "','" + id + "','"
-                    + url + "','" + uploadDate + "')";
+//            String sql = "insert into File (file_name,id,url,upload_date) values ('" + fileName + "','" + id + "','"
+//                    + url + "','" + uploadDate + "')";
+            String sql = "insert into File (file_name,id,url,upload_date,hashedcode) values ('" + fileName + "','" + id + "','"
+                    + url + "','" + uploadDate + "','"+ hashedcode + "')";
             stmt.execute(sql);
 
 
@@ -125,7 +143,7 @@ public class SqlFile {
 		try {
 			conn = getConnection();
 			stmt = conn.createStatement();
-			String sql = "select * from File where id = '" + id + "';";
+			String sql = "select id,url,file_name,upload_date from File where id = '" + id + "';";
 			ResultSet res = stmt.executeQuery(sql);
 
 			while (res.next()) {

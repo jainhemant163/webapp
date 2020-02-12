@@ -282,8 +282,7 @@ public class BillController {
   //  private static final String UPLOAD_FOLDER = System.getProperty("user.dir")+"/src/main/resources/static/images/";
 
     private void saveMetaData(Bill billById,MultipartFile file) throws IOException {
-        
-        
+                
           
         FileUpload metaData = new FileUpload();
         
@@ -301,6 +300,7 @@ public class BillController {
          displayFile.put("url", metaData.getUrl());
          displayFile.put("upload_date", metaData.getUpload_date());
 
+         
          mapperObj.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS , false);
          String jsonResp = mapperObj.writeValueAsString(displayFile);
          System.out.println(jsonResp);
