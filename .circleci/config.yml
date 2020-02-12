@@ -45,7 +45,6 @@ jobs:
             sudo apt-get update
             sudo apt install maven
             mvn clean install
-
 workflows:
   version: 2
   build-deploy:
