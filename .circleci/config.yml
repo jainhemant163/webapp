@@ -10,7 +10,7 @@ jobs:
       - run: 
           command: |
             cd WebApplication
-            ./mvnw clean install                
+            mvn clean install                
                             
   build:
     docker:
@@ -64,10 +64,8 @@ workflows:
       - pr_check_job                          
   build-deploy:
     jobs:
-      - build  
-         filters:
-           branches:
-            only: master      
-                  
-                     
-                          
+      - build:  
+          filters:
+            branches:
+              only: master      
+
