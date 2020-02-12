@@ -68,14 +68,14 @@ public class SqlBill {
 			conn = getConnection();
 			stmt = conn.createStatement();
 			String sqlrecipe = "select id,created_ts,updated_ts,owner_id,"
-					+ " vendor,bill_date,due_date,amount_due,categories,paymentStatus from Bill;";
+					+ " vendor,bill_date,due_date,amount_due,categories,paymentStatus,attachment from Bill;";
 
 			ResultSet rs = stmt.executeQuery(sqlrecipe);
 			result = new ArrayList<Bill>();
 
 			while (rs.next()) {
 				String id = rs.getString("id");
-				String files1 = rs.getString("attachment");
+				
 				String created_ts = rs.getString("created_ts");
 				String updated_ts = rs.getString("updated_ts");
 				String owner_id = rs.getString("owner_id");
@@ -86,12 +86,13 @@ public class SqlBill {
 				String paymentStatus = rs.getString("paymentStatus");
 				String categories = rs.getString("categories");
 				String[] categoryElement = categories.split(",");
+				String attachment = rs.getString("attachment");
 				// Files attachment = rs.getString("attachment");
 
 				Bill item = new Bill(id, created_ts, updated_ts, owner_id, vendor, bill_date, due_date, amount_due,
 						categoryElement, Status.valueOf(paymentStatus));
 
-				item.setAttachment(files1);
+				item.setAttachment(attachment);
 				result.add(item);
 
 			}

@@ -59,28 +59,6 @@ public class FileController {
     @Autowired
     FileValidatorUtil filevalidatorUtil;
 
-//    @RequestMapping(value="/{id}/file", method=RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public ResponseEntity<Object> uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
-//        
-//        
-//        File convertFile = new File("/home/hemant/CSYE6225-workspace/"+file.getOriginalFilename());
-//          if (null == file || file.equals("")) {
-//             
-//                return new ResponseEntity<>("Select the file to upload", HttpStatus.BAD_REQUEST);
-//            }
-//            if (!filevalidatorUtil.isFileFormat(file)) {
-//         
-//                return new ResponseEntity<>("Please upload correct file format", HttpStatus.UNPROCESSABLE_ENTITY);
-//            }
-//
-//          //  Files f = (Files) convertFile;
-//        convertFile.createNewFile();
-//        FileOutputStream fout = new FileOutputStream(convertFile);
-//        fout.write(file.getBytes());
-//        fout.close();
-//     //   fileService.addFile(file);
-//        return new ResponseEntity<>("File is uploaded successfully", HttpStatus.OK);
-//    
 //    }
 
 

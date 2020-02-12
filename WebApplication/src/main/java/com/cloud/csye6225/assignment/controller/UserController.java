@@ -3,6 +3,7 @@ package com.cloud.csye6225.assignment.controller;
 
 
 import com.alibaba.fastjson.JSON;
+import com.cloud.csye6225.assignment.entity.Bill;
 import com.cloud.csye6225.assignment.entity.UserAccount;
 import com.cloud.csye6225.assignment.entity.UserAccountResponse;
 import com.cloud.csye6225.assignment.service.UserAccountService;
@@ -70,8 +71,18 @@ public class UserController {
     }
 
     @RequestMapping(value = "/v1/users", method = RequestMethod.GET)
-    public Collection<UserAccountResponse> getAllAccounts(){
+    public ResponseEntity<Collection<UserAccountResponse>> getAllAccounts(){
 
+    	
+    	
+    	  if (SecurityContextHolder.getContext().getAuthentication() != null
+                  && SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
+ 		  
+    		  return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    		  
+          } else {
+              //Call database, repository(userMapper), service, retrieve info
+          
         List<UserAccount> accounts = (List<UserAccount>) accountService.getAllAccounts();
         List<UserAccountResponse> views = new ArrayList<UserAccountResponse>();
 
@@ -87,14 +98,22 @@ public class UserController {
             views.add(item);
         }
 
-        return views;
-
+        return new ResponseEntity<Collection<UserAccountResponse>>(views, HttpStatus.OK);
+       // return views;
+    }
     }
 
 
     @RequestMapping(value = "/v1/user/self", method = RequestMethod.GET)
     public ResponseEntity<UserAccountResponse> getAccountByEmail(){
 
+    	
+    	 if (SecurityContextHolder.getContext().getAuthentication() != null
+                 && SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
+		  
+   		  return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+   		  
+         } else {
         UserAccount user_db = this.accountService.currentUser;
         UserAccount account = accountService.getAccountByEmail(user_db.getEmail());
         UserAccountResponse response = new UserAccountResponse();
@@ -107,9 +126,17 @@ public class UserController {
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+    }
 
     @RequestMapping(value = "/v1/user/self", method = RequestMethod.PUT,consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateAccount(@RequestBody UserAccount account){
+    	
+    	 if (SecurityContextHolder.getContext().getAuthentication() != null
+                 && SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
+		  
+   		  return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+   		  
+         } else {
         UserAccount user_db = this.accountService.currentUser;
         if(account.getPassword() != null && !account.getPassword().equals(user_db.getPassword())){
             String passwordHash = BCrypt.hashpw(account.getPassword(), BCrypt.gensalt());
@@ -139,12 +166,21 @@ public class UserController {
             	}
             }
     }
+    }
 
 
     @RequestMapping(value = "/v1/user",method = RequestMethod.POST,consumes = MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public ResponseEntity<?> registerPost(@RequestBody String jsonUser) {
-        UserAccount account = JSON.parseObject(jsonUser, UserAccount.class);
+       
+    	 if (SecurityContextHolder.getContext().getAuthentication() != null
+                 && SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
+		  
+   		  return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+   		  
+         } else {
+    	
+    	UserAccount account = JSON.parseObject(jsonUser, UserAccount.class);
         HashMap<String, String> response = new HashMap<>();
 
         String username = account.getEmail();
@@ -176,7 +212,7 @@ public class UserController {
             //return new ResponseEntity<>(response, HttpStatus.CONFLICT);
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
-
+         }
     
     }
 }
