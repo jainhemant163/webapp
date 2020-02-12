@@ -89,6 +89,8 @@ public class BillController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
 		} else {
+			
+			
 			Bill billObj = new Gson().fromJson(bill, Bill.class);
 			UserAccount account = accountService.currentUser;
 
@@ -109,12 +111,13 @@ public class BillController {
 //      if() return null;// log in or not
 		// get user id after log in
 
+ 
 		Collection<Bill> bills1 = null;
 		// check whether user logged in using the basic auth credentials or not
 		if (SecurityContextHolder.getContext().getAuthentication() != null
 				&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
 			// response.put("message", "you are not logged in!!!");
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Collection<Bill>>(HttpStatus.BAD_REQUEST);
 
 		} else {
 
@@ -123,7 +126,7 @@ public class BillController {
 			Collection<Bill> bills = billService.getAllBill();
 
 			bills1 = bills.stream().filter(p -> p.getOwner_id().equals(account.getId())).collect(Collectors.toList());
-			return new ResponseEntity<>(bills1, HttpStatus.OK);
+			return new ResponseEntity<Collection<Bill>>(bills1, HttpStatus.OK);
 
 		}
 
@@ -139,7 +142,7 @@ public class BillController {
 		if (SecurityContextHolder.getContext().getAuthentication() != null
 				&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
 			// response.put("message", "you are not logged in!!!");
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Bill>(HttpStatus.BAD_REQUEST);
 
 		} else {
 
@@ -203,7 +206,7 @@ public class BillController {
 		if (SecurityContextHolder.getContext().getAuthentication() != null
 				&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
 			// response.put("message", "you are not logged in!!!");
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<Bill>(HttpStatus.BAD_REQUEST);
 
 		} else {
 
@@ -214,10 +217,15 @@ public class BillController {
 			bill.setDue_date(infos.getDue_date());
 
 			billService.updateBill(bill);
-			return new ResponseEntity<>(bill, HttpStatus.OK);
+			return new ResponseEntity<Bill>(bill, HttpStatus.OK);
 		}
 	}
 	
+    public static boolean isNullOrEmpty(String str) {
+        if(str != null && !str.isEmpty())
+            return false;
+        return true;
+    }	
 	//Post File for the bill
 
     @RequestMapping(value = "/v1/bill/{id}/file", method = RequestMethod.POST)
@@ -226,23 +234,28 @@ public class BillController {
 
         /** Below data is what we saving into database */
          Bill billById = billService.getBillById(id);
+         
         
         if (attachment.isEmpty()) {
             return new ResponseEntity<String>("please select a file!", HttpStatus.OK);
         }
+//         if(!billById.getAttachment().equals(null)) {
+//        	 return new ResponseEntity<String>("Already a file is attached", HttpStatus.BAD_REQUEST);
+//         }
         
           if(!attachment.getContentType().equals("image/jpg") && !attachment.getContentType().equals("image/jpeg")
                    &&  !attachment.getContentType().equals("application/pdf") && !attachment.getContentType().equals("image/png")){
                         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
                     }
-
+          
+          if(isNullOrEmpty(billById.getAttachment())) {
         try {
             /** File will get saved to file system and database */
             saveUploadedFiles(billById,Arrays.asList(attachment));
         } catch (IOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-
+          }
         
         return new ResponseEntity<String>("Successfully uploaded - " + attachment.getOriginalFilename(),
                 new HttpHeaders(), HttpStatus.OK);
@@ -266,7 +279,7 @@ public class BillController {
         }
     }    
     
-    private static final String UPLOAD_FOLDER = System.getProperty("user.dir")+"/src/main/resources/static/images/";
+  //  private static final String UPLOAD_FOLDER = System.getProperty("user.dir")+"/src/main/resources/static/images/";
 
     private void saveMetaData(Bill billById,MultipartFile file) throws IOException {
         
@@ -276,7 +289,7 @@ public class BillController {
         
         metaData.setFile_name(file.getOriginalFilename());
         metaData.setUpload_date(new Date().toString());
-        metaData.setUrl(UPLOAD_FOLDER);
+        metaData.setUrl(UPLOADED_FOLDER);
         metaData.setId(UUID.randomUUID().toString());
         
     
@@ -301,12 +314,7 @@ public class BillController {
          
          billById.setAttachment(jsonResp);        
          billService.updateBill(billById);
-         
-         
-         
-         
-         
-        
+ 
         fileService.addFile(metaData);
         //fileService.updateFiles(files);
     }
@@ -321,21 +329,21 @@ public class BillController {
 		if (SecurityContextHolder.getContext().getAuthentication() != null
 				&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
 			// response.put("message", "you are not logged in!!!");
-			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<FileUpload>(HttpStatus.BAD_REQUEST);
 
 		} else {
 
 			if (billId == null) {
-				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+				return new ResponseEntity<FileUpload>(HttpStatus.NO_CONTENT);
 			}
 
 			else {
 				FileUpload file = fileService.getFileById(fileId);
 				if (file == null) {
-					return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+					return new ResponseEntity<FileUpload>(HttpStatus.NOT_FOUND);
 				}
 
-				return new ResponseEntity<>(file, HttpStatus.OK);
+				return new ResponseEntity<FileUpload>(file, HttpStatus.OK);
 			}
 		}
 	}
