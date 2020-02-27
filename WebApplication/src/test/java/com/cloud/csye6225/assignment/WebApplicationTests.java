@@ -41,22 +41,22 @@ public class WebApplicationTests {
 	public void contextLoads() {
 	}
 
-	@Test
-	
-	public void testGetAllUsers() throws URISyntaxException {
-		
-		  RestTemplate restTemplate = new RestTemplate();
-	        
-	        final String baseUrl = "http://localhost:"+port+"/";
-	        URI uri = new URI(baseUrl);       		
-		HttpHeaders headers = new HttpHeaders();
-		HttpEntity<String> entity = new HttpEntity<String>(null, headers);
-
-		ResponseEntity<String> response = restTemplate.exchange(uri + "/",
-				HttpMethod.GET, entity, String.class);
-
-		Assert.assertNotNull(response.getBody());
-	}
+//	@Test
+//	
+//	public void testGetAllUsers() throws URISyntaxException {
+//		
+//		  RestTemplate restTemplate = new RestTemplate();
+//	        
+//	        final String baseUrl = "http://localhost:"+port+"/";
+//	        URI uri = new URI(baseUrl);       		
+//		HttpHeaders headers = new HttpHeaders();
+//		HttpEntity<String> entity = new HttpEntity<String>(null, headers);
+//
+//		ResponseEntity<String> response = restTemplate.exchange(uri + "/",
+//				HttpMethod.GET, entity, String.class);
+//
+//		Assert.assertNotNull(response.getBody());
+//	}
 
 ////	@Test
 ////	public void testGetUserById() throws URISyntaxException {

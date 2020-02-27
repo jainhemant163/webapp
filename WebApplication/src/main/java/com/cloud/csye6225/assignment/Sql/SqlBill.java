@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import com.alibaba.fastjson.JSONObject;
 import com.cloud.csye6225.assignment.entity.Bill;
 import com.cloud.csye6225.assignment.entity.Bill.Status;
 import com.cloud.csye6225.assignment.entity.FileUpload;
@@ -25,9 +26,13 @@ public class SqlBill {
 
 	public Connection getConnection() {
 		String driver = "com.mysql.cj.jdbc.Driver";
-		String url = "jdbc:mysql://localhost:3306/users_database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
-		String name = "root";
-		String pwd = "Hemant@123";
+//		String url = "jdbc:mysql://localhost:3306/users_database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+//		String name = "root";
+//		String pwd = "Hemant@123";
+	    String url="jdbc:mysql://csye6225-spring2020.cqgmm4m0xh7h.us-east-1.rds.amazonaws.com:3306/users_database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+        String name="root";
+        String pwd="root123!";
+      
 		try {
 			Class.forName(driver);
 			Connection conn = DriverManager.getConnection(url, name, pwd);
@@ -210,10 +215,11 @@ public class SqlBill {
 			stmt.execute(query);
 
 			// Update query for the attachment
-
+             if(!attachment.equals(null))
+             {	//JSONObject jsonObj = new JSONObject.quote(attachment.toString());
 			String query1 = "update Bill set attachment = " + "'" + attachment + "'" + "where id =" + "'" + id + "'" + ";";
 			stmt.execute(query1);
-
+             }
 		} catch (SQLException ex) {
 			ex.printStackTrace();
 		} catch (Exception ex) {
