@@ -307,7 +307,7 @@ public class BillController {
           
         FileUpload metaData = new FileUpload();
         
-        metaData.setFile_name(file.getOriginalFilename());
+        metaData.setFile_name(file.getOriginalFilename() + new Date().toString());
         metaData.setUpload_date(new Date().toString());
         metaData.setUrl(UPLOADED_FOLDER);
         metaData.setId(UUID.randomUUID().toString());
