@@ -30,11 +30,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,6 +49,7 @@ import com.cloud.csye6225.assignment.entity.Bill;
 import com.cloud.csye6225.assignment.entity.FileUpload;
 import com.cloud.csye6225.assignment.entity.UserAccount;
 import com.cloud.csye6225.assignment.entity.UserAccountResponse;
+import com.cloud.csye6225.assignment.service.AmazonClient;
 import com.cloud.csye6225.assignment.service.BillService;
 import com.cloud.csye6225.assignment.service.FileService;
 import com.cloud.csye6225.assignment.service.UserAccountService;
@@ -76,6 +80,24 @@ public class BillController {
 
 	@Autowired
 	PasswordUtil passwordUtil;
+	  private AmazonClient  amazonClient;
+
+	    BillController() {
+	        this.amazonClient = new AmazonClient();
+	    }
+
+	   
+	    @PostMapping("/v1/bill/fileupload")
+	    public String uploadFile(@RequestPart(value = "file") MultipartFile file) {
+	    	
+	        return this.amazonClient.uploadFile(file);
+	    }
+
+	    @DeleteMapping("/v1/bill/filedelete")
+	    public String deleteFile(@RequestPart(value = "url") String fileUrl) {
+	        return this.amazonClient.deleteFileFromS3Bucket(fileUrl);
+	    }
+	        
 
 	// Post Request for Bill
 	@RequestMapping(value = "/v1/bill", method = RequestMethod.POST, consumes = APPLICATION_JSON_VALUE)
@@ -229,7 +251,7 @@ public class BillController {
 	//Post File for the bill
 
     @RequestMapping(value = "/v1/bill/{id}/file", method = RequestMethod.POST)
-    public ResponseEntity<?> uploadFile(@PathVariable String id,@RequestParam("file") MultipartFile attachment,
+    public ResponseEntity<FileUpload> uploadFile(@PathVariable String id,@RequestParam("file") MultipartFile attachment,
             final HttpServletRequest request) {
 
         /** Below data is what we saving into database */
@@ -237,7 +259,7 @@ public class BillController {
          
         
         if (attachment.isEmpty()) {
-            return new ResponseEntity<String>("please select a file!", HttpStatus.OK);
+            return new ResponseEntity<FileUpload>(HttpStatus.OK);
         }
 //         if(!billById.getAttachment().equals(null)) {
 //        	 return new ResponseEntity<String>("Already a file is attached", HttpStatus.BAD_REQUEST);
@@ -257,8 +279,7 @@ public class BillController {
         }
           }
         
-        return new ResponseEntity<String>("Successfully uploaded - " + attachment.getOriginalFilename(),
-                new HttpHeaders(), HttpStatus.OK);
+        return new ResponseEntity<FileUpload>(HttpStatus.OK);
 
     }
     
@@ -370,11 +391,14 @@ public class BillController {
 		        
 		        Path fileToDeletePath = Paths.get(UPLOADED_FOLDER + file.getFile_name());
 		        Files.delete(fileToDeletePath);
+		        
 		        isSuccess = fileService.deleteFile(fileId);
 		        Bill billById = billService.getBillById(billId);
 		    
-		         billById.setAttachment(null);
+		         billById.setAttachment("NULL");
 		         billService.updateBill(billById);
+		         
+		         
 		       
 	
 				if (isSuccess)
