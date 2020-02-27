@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -37,20 +38,33 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter imple
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable();
-     
+//        http.cors().and().csrf().disable();
+//     
+//        http
+//                .csrf()
+//                .disable()
+//                .authorizeRequests()
+//                .antMatchers("/").permitAll()
+////                .antMatchers("/v1/user").permitAll()
+////                .antMatchers("/v1/bills").permitAll()
+////                .antMatchers("/v1/bill").permitAll()                
+//                .anyRequest().authenticated()
+//                .and()
+//                .httpBasic()
+//                .authenticationEntryPoint(authEntryPoint);
+    	
         http
-                .csrf()
-                .disable()
-                .authorizeRequests()
-                .antMatchers("/").permitAll()
-//                .antMatchers("/v1/user").permitAll()
-//                .antMatchers("/v1/bills").permitAll()
-//                .antMatchers("/v1/bill").permitAll()                
-                .anyRequest().authenticated()
-                .and()
-                .httpBasic()
-                .authenticationEntryPoint(authEntryPoint);
+        .csrf()
+        .disable()
+        .authorizeRequests()
+        .antMatchers("/v1/*","/","/v1/*/*","/v1/*/*/*").fullyAuthenticated()
+        .anyRequest().permitAll()
+        .and()
+        .httpBasic()
+        .authenticationEntryPoint(authEntryPoint)
+        .and()
+        .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+
     }
 
     @Bean

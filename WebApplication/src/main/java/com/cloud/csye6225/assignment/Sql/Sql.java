@@ -24,9 +24,15 @@ import com.cloud.csye6225.assignment.entity.UserAccount;
 public class Sql {
 	 public Connection getConnection(){
 	        String driver="com.mysql.cj.jdbc.Driver";   
-	        String url="jdbc:mysql://localhost:3306/users_database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+//	        String url="jdbc:mysql://csye6225-spring2020.cqgmm4m0xh7h.us-east-1.rds.amazonaws.com:3306/csye6225-spring2020";
+//	        String name="dbuser";
+//	        String pwd="csye6225password";
+	        
+	        String url="jdbc:mysql://csye6225-spring2020.cqgmm4m0xh7h.us-east-1.rds.amazonaws.com:3306/users_database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 	        String name="root";
-	        String pwd="Hemant@123";
+	        String pwd="root123!";
+	      
+
 	        try{
 	            Class.forName(driver);
 	            Connection conn=DriverManager.getConnection(url,name,pwd);
