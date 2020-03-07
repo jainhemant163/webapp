@@ -31,7 +31,7 @@ jobs:
             ls -al
       - run:
           name: Zip Artifact
-          command: |
+          command: |            
             echo "Hello the current CircleCI build number is ${CIRCLE_BUILD_NUM}"
             pwd
             echo "Listing current directory content"
@@ -42,7 +42,10 @@ jobs:
             cd codedeploy_artifact
             cp ../WebApplication/target/WebApplication-0.0.1-SNAPSHOT.jar .
             cp ../WebApplication/src/main/resources/*.properties .
+            cp ../codedeploy/*.sh .
+            cp ../*.yml .
             zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip .
+            rm *.yml *.sh *.properties *.jar
             ls -al
             pwd
             cd ..
