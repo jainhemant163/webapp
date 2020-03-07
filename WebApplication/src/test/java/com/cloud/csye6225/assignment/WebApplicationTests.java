@@ -27,16 +27,16 @@ import org.springframework.web.client.RestTemplate;
 //@SpringBootTest(classes = WebApplicationTests.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class WebApplicationTests {
 
-	@Autowired
-	private TestRestTemplate restTemplate;
-
-	@LocalServerPort
-	private int port;
-
-	private String getRootUrl() {
-		return "http://localhost:" + port;
-	}
-
+//	@Autowired
+//	private TestRestTemplate restTemplate;
+//
+//	@LocalServerPort
+//	private int port;
+//
+//	private String getRootUrl() {
+//		return "http://localhost:" + port;
+//	}
+//
 	@Test
 	public void contextLoads() {
 	}

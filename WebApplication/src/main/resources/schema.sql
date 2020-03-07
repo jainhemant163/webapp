@@ -1,3 +1,6 @@
+
+DROP database users_database;
+CREATE database users_database;
 use users_database;
 
 create table users

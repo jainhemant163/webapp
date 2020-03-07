@@ -1,0 +1,8 @@
+amazonProperties:
+  endpointUrl: https://s3.us-east-2.amazonaws.com
+  accessKey: AKIAI3X6B7NYDWD6CHKQ
+  secretKey: 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
+  bucketName: demo-s3bucket-s0mfmo9mt3rg
+  url: jdbc:mysql://csye6225-spring2020.cqgmm4m0xh7h.us-east-1.rds.amazonaws.com:3306/users_database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+  name: root
+  pwd: root123!
