@@ -1,4 +1,3 @@
-#!/bin/bash
 cd /home/ubuntu/webapp
 sudo chown -R ubuntu:ubuntu /home/ubuntu/webapp
 sudo chmod +x WebApplication-0.0.1-SNAPSHOT.jar
