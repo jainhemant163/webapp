@@ -1,12 +1,12 @@
 version: 0.0
 os: linux
 
-files:             
+files:
   - source: /
-    destination: /home/ubuntu/webapp/
+    destination: /home/ubuntu/webapp
 
 hooks:
   AfterInstall:
    - location: ./afterInstall.sh
      timeout: 180
-     runas: root
+     runas: ubuntu
