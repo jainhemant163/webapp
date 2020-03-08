@@ -1,6 +1,6 @@
 #!/bin/bash
-cd /home/ubuntu/webapp
-sudo chown -R ubuntu:ubuntu /home/ubuntu/webapp
+cd /home/ubuntu/webapp/
+sudo chown -R ubuntu:ubuntu /home/ubuntu/webapp/
 sudo chmod +x WebApplication-0.0.1-SNAPSHOT.jar
 source /etc/profile.d/envvariable.sh
 sudo systemctl stop tomcat8
