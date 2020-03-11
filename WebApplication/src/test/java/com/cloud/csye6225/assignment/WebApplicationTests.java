@@ -27,6 +27,7 @@ import org.springframework.web.client.RestTemplate;
 //@SpringBootTest(classes = WebApplicationTests.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class WebApplicationTests {
 
+	//
 //	@Autowired
 //	private TestRestTemplate restTemplate;
 //
