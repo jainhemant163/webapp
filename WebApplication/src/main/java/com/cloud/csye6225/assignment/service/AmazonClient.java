@@ -45,31 +45,33 @@ public class AmazonClient {
 //    public AmazonClient(){
 //        AWSCredentials credentials = new BasicAWSCredentials(this.accessKey, this.secretKey);
 //        //this.s3client = new AmazonS3Client(credentials);
-//        this.s3client = AmazonS3ClientBuilder.standard().withRegion("us-east-1").withCredentials(new AWSStaticCredentialsProvider(credentials)).build();
+//        this.s3client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(credentials)).build();
 //    }
 
 	 private AmazonS3 s3client;
 
 	    @Value("${amazonProperties.endpointUrl}")
-	    private String endpointUrl;
+	    private  String endpointUrl;
+	//    private static final String endpointUrl = "https://s3.us-east-1.amazonaws.com";
 	    @Value("${amazonProperties.bucketName}")
-	    private String bucketName;
+	    private  String bucketName;
+	  //  private static final String bucketName = "dev-demo1-s3bucket-naw9ai99q0x6";
 	    @Value("${amazonProperties.accessKey}")
-	    private String accessKey;
+	    private  String accessKey;
 	    @Value("${amazonProperties.secretKey}")
-	    private String secretKey;
+	    private  String secretKey;
 
 	    @PostConstruct
 	    private void initializeAmazon() {
 	        AWSCredentials credentials = new BasicAWSCredentials(this.accessKey, this.secretKey);
 	        this.s3client = new AmazonS3Client(credentials);
 	    }
+	    
     public String uploadFile(MultipartFile multipartFile) {
         String fileUrl = "";
         try {
             File file = convertMultiPartToFile(multipartFile);
             String fileName = generateFileName(multipartFile);
-            System.out.println(endpointUrl +"llllllllllllllllllllllllllll"+ bucketName);
             fileUrl = endpointUrl + "/" + bucketName + "/" + fileName;
             uploadFileTos3bucket(fileName, file);
             file.delete();
@@ -103,8 +105,9 @@ public class AmazonClient {
     }
 
     private void uploadFileTos3bucket(String fileName, File file) {
-        s3client.putObject(new PutObjectRequest(bucketName, fileName, file)
-                .withCannedAcl(CannedAccessControlList.PublicRead));
+    //	System.out.println(endpointUrl +"llllllllllllllllllllllllllll"+ bucketName);
+        s3client.putObject(new PutObjectRequest(bucketName, fileName, file));
+            //   .withCannedAcl(CannedAccessControlList.PublicRead));
     }
 
     public String deleteFileFromS3Bucket(String fileUrl) {

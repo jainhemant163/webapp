@@ -80,12 +80,14 @@ public class BillController {
 
 	@Autowired
 	PasswordUtil passwordUtil;
-	  private AmazonClient  amazonClient;
+	 
+	@Autowired
+	private AmazonClient  amazonClient;
 
+	    @Autowired
 	    BillController() {
 	        this.amazonClient = new AmazonClient();
 	    }
-
 	   
 	    @PostMapping("/v1/bill/fileupload")
 	    public String uploadFile(@RequestPart(value = "file") MultipartFile file) {
