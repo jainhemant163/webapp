@@ -1,8 +1,8 @@
 amazonProperties:
-  #endpointUrl: https://s3.us-east-2.amazonaws.com
-  #accessKey: AKIAICCYMV5P7TR4WKIQ
-  #secretKey: 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
-  #bucketName: csye6225demo-s3bucket-7h6yvhrngfd0
-  url: csye6225-spring2020.crlveeu0ubxm.us-east-2.rds.amazonaws.com:3306/users_database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+  endpointUrl: https://s3.us-east-1.amazonaws.com
+  accessKey: AKIAIE4YAZOXOFQR4MTA
+  secretKey: 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
+  bucketName: dev-demo1-s3bucket-naw9ai99q0x6
+  #url: csye6225-spring2020.crlveeu0ubxm.us-east-2.rds.amazonaws.com:3306/users_database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
   #name: root
   #pwd: root123!
