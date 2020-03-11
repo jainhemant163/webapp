@@ -48,38 +48,40 @@ public class AmazonClient {
 //        this.s3client = AmazonS3ClientBuilder.standard().withCredentials(new AWSStaticCredentialsProvider(credentials)).build();
 //    }
 
-	 private AmazonS3 s3client;
+	private AmazonS3 s3client;
 
-	    @Value("${amazonProperties.endpointUrl}")
-	    private  String endpointUrl;
-	//    private static final String endpointUrl = "https://s3.us-east-1.amazonaws.com";
-	    @Value("${amazonProperties.bucketName}")
-	    private  String bucketName;
-	  //  private static final String bucketName = "dev-demo1-s3bucket-naw9ai99q0x6";
-	    @Value("${amazonProperties.accessKey}")
-	    private  String accessKey;
-	    @Value("${amazonProperties.secretKey}")
-	    private  String secretKey;
+	@Value("${amazonProperties.endpointUrl}")
+	private String endpointUrl;
 
-	    @PostConstruct
-	    private void initializeAmazon() {
-	        AWSCredentials credentials = new BasicAWSCredentials(this.accessKey, this.secretKey);
-	        this.s3client = new AmazonS3Client(credentials);
-	    }
-	    
-    public String uploadFile(MultipartFile multipartFile) {
-        String fileUrl = "";
-        try {
-            File file = convertMultiPartToFile(multipartFile);
-            String fileName = generateFileName(multipartFile);
-            fileUrl = endpointUrl + "/" + bucketName + "/" + fileName;
-            uploadFileTos3bucket(fileName, file);
-            file.delete();
-        } catch (Exception e) {
-           e.printStackTrace();
-        }
-        return fileUrl;
-    }
+	@Value("${amazonProperties.bucketName}")
+	private String bucketName;
+
+	@Value("${amazonProperties.accessKey}")
+	private String accessKey;
+
+	@Value("${amazonProperties.secretKey}")
+	private String secretKey;
+
+	@PostConstruct
+	private void initializeAmazon() {
+		AWSCredentials credentials = new BasicAWSCredentials(this.accessKey, this.secretKey);
+		this.s3client = new AmazonS3Client(credentials);
+	}
+
+	public String uploadFile(MultipartFile multipartFile) {
+		String fileUrl = "";
+		try {
+			File file = convertMultiPartToFile(multipartFile);
+			String fileName = generateFileName(multipartFile);
+			fileUrl = endpointUrl + "/" + bucketName + "/" + fileName;
+			uploadFileTos3bucket(fileName, file);
+			file.delete();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return fileUrl;
+	}
+
 //    public ObjectMetadata getMetaData()
 //    {
 //        try{
@@ -92,28 +94,28 @@ public class AmazonClient {
 //        }
 //    }
 
-    private File convertMultiPartToFile(MultipartFile file) throws IOException {
-        File convFile = new File(file.getOriginalFilename());
-        FileOutputStream fos = new FileOutputStream(convFile);
-        fos.write(file.getBytes());
-        fos.close();
-        return convFile;
-    }
+	private File convertMultiPartToFile(MultipartFile file) throws IOException {
+		File convFile = new File(file.getOriginalFilename());
+		FileOutputStream fos = new FileOutputStream(convFile);
+		fos.write(file.getBytes());
+		fos.close();
+		return convFile;
+	}
 
-    private String generateFileName(MultipartFile multiPart) {
-        return new Date().getTime() + "-" + multiPart.getOriginalFilename().replace(" ", "_");
-    }
+	private String generateFileName(MultipartFile multiPart) {
+		return new Date().getTime() + "-" + multiPart.getOriginalFilename().replace(" ", "_");
+	}
 
-    private void uploadFileTos3bucket(String fileName, File file) {
-    //	System.out.println(endpointUrl +"llllllllllllllllllllllllllll"+ bucketName);
-        s3client.putObject(new PutObjectRequest(bucketName, fileName, file));
-            //   .withCannedAcl(CannedAccessControlList.PublicRead));
-    }
+	private void uploadFileTos3bucket(String fileName, File file) {
+		// System.out.println(endpointUrl +"llllllllllllllllllllllllllll"+ bucketName);
+		s3client.putObject(new PutObjectRequest(bucketName, fileName, file));
+		// .withCannedAcl(CannedAccessControlList.PublicRead));
+	}
 
-    public String deleteFileFromS3Bucket(String fileUrl) {
-        String fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
-        s3client.deleteObject(new DeleteObjectRequest(bucketName, fileName));
-        return "Successfully deleted";
-    }
+	public String deleteFileFromS3Bucket(String fileUrl) {
+		String fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
+		s3client.deleteObject(new DeleteObjectRequest(bucketName, fileName));
+		return "Successfully deleted";
+	}
 
 }

@@ -3,6 +3,6 @@ amazonProperties:
   accessKey: AKIAIE4YAZOXOFQR4MTA
   secretKey: 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
   bucketName: dev-demo1-s3bucket-naw9ai99q0x6
-  #url: csye6225-spring2020.crlveeu0ubxm.us-east-2.rds.amazonaws.com:3306/users_database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
-  #name: root
-  #pwd: root123!
+  url: csye6225-spring2020.cqgmm4m0xh7h.us-east-1.rds.amazonaws.com:3306/users_database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+  name: root
+  pwd: root123!

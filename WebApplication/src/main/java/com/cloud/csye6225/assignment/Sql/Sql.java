@@ -17,35 +17,41 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
+import com.amazonaws.annotation.Beta;
 import com.cloud.csye6225.assignment.entity.UserAccount;
 
 /**
  * @author jainh
  *
  */
+
+@Service
 public class Sql {
 
-	  @Value("${amazonProperties.url}")
-	  private static final String url1 = "";
-//	  
-//	  @Value("${amazonProperties.name}")
-//	  public static String name;
-//	  
-//	  @Value("${amazonProperties.pwd}")
-//	  public static String pwd;
-	  
-	public Connection getConnection() {
+	@Value("${amazonProperties.url}")
+	private String url1 = "";
+
+	@Value("${amazonProperties.name}")
+	private String name;
+
+	@Value("${amazonProperties.pwd}")
+	private String pwd;
+
+	@PostConstruct
+	public Connection getConnection() throws SQLException {
 		String driver = "com.mysql.cj.jdbc.Driver";
-		
-		String url = "jdbc:mysql://csye6225-spring2020.cqgmm4m0xh7h.us-east-1.rds.amazonaws.com:3306/users_database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
-		//String url = "jdbc:mysql://"+url1;
-		String name = "root";
-		String pwd = "root123!";
+
+		String url = "jdbc:mysql://" + url1;
+//		String url = "jdbc:mysql://csye6225-spring2020.cqgmm4m0xh7h.us-east-1.rds.amazonaws.com:3306/users_database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+//		//String url = "jdbc:mysql://"+url1;
+//		String name = "root";
+//		String pwd = "root123!";
 
 		try {
 			Class.forName(driver);
-			Connection conn = DriverManager.getConnection(url,name,pwd);
+			Connection conn = DriverManager.getConnection(url, name, pwd);
 			return conn;
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
