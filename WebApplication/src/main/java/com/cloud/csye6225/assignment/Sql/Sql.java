@@ -14,6 +14,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
+import org.springframework.beans.factory.annotation.Value;
 
 import com.cloud.csye6225.assignment.entity.UserAccount;
 
@@ -23,20 +26,21 @@ import com.cloud.csye6225.assignment.entity.UserAccount;
  */
 public class Sql {
 
-//	  @Value("${amazonProperties.url}")
-//	  public static String url;
+	  @Value("${amazonProperties.url}")
+	  private static final String url1 = "";
 //	  
 //	  @Value("${amazonProperties.name}")
 //	  public static String name;
 //	  
 //	  @Value("${amazonProperties.pwd}")
 //	  public static String pwd;
-
+	  
 	public Connection getConnection() {
 		String driver = "com.mysql.cj.jdbc.Driver";
-
+		
 		String url = "jdbc:mysql://csye6225-spring2020.cqgmm4m0xh7h.us-east-1.rds.amazonaws.com:3306/users_database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
-	    String name = "root";
+		//String url = "jdbc:mysql://"+url1;
+		String name = "root";
 		String pwd = "root123!";
 
 		try {

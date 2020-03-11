@@ -37,9 +37,9 @@ public class WebApplicationTests {
 //		return "http://localhost:" + port;
 //	}
 //
-	@Test
-	public void contextLoads() {
-	}
+//	@Test
+//	public void contextLoads() {
+//	}
 
 //	@Test
 //	

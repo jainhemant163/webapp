@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Value;
 
 import com.alibaba.fastjson.JSONObject;
@@ -35,6 +37,7 @@ public class SqlBill {
 //	  @Value("${amazonProperties.pwd}")
 //	  public static String pwd;
 
+	@PostConstruct
 	public Connection getConnection() {
 		String driver = "com.mysql.cj.jdbc.Driver";
 //		String url = "jdbc:mysql://localhost:3306/users_database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
