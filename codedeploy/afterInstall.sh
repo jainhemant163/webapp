@@ -6,4 +6,4 @@ source /etc/profile.d/envvariable.sh
 sudo systemctl stop tomcat8
 export awsRDS=echo $awsRDS
 kill -9 $(ps -ef|grep WebApplication | grep -v grep | awk '{print$2}')
-nohup java $JAVA_OPTS -jar webapp/WebApplication-0.0.1-SNAPSHOT.jar > /home/ubuntu/output.txt 2> /home/ubuntu/output.txt < /home/ubuntu/output.txt &
+nohup java $JAVA_OPTS -jar WebApplication-0.0.1-SNAPSHOT.jar > /home/ubuntu/output.txt 2> /home/ubuntu/output.txt < /home/ubuntu/output.txt &
