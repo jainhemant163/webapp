@@ -1,105 +1,62 @@
-version: 2.1
-
+version: 2
 jobs:
-  pr_check_job:
-    docker:
-      - image: circleci/openjdk:8u171-jdk
-      - image: circleci/mysql:5.7
-        environment:
-          MYSQL_ROOT_PASSWORD: rootpw
-          MYSQL_DATABASE: test_db
-          MYSQL_USER: user
-          MYSQL_PASSWORD: passw0rd
-
-    steps:
-      - checkout
-      - run: echo "Running build on master"  # run the `echo` command
-      - run:
-      # Our primary container isn't MYSQL so run a sleep command until it's ready.
-          name: Waiting for MySQL to be ready
-          command: |
-            for i in `seq 1 60`;
-            do
-              nc -z 127.0.0.1 3306 && echo Success && exit 0
-              echo -n .
-              sleep 1
-            done
-            echo Failed waiting for MySQL && exit 1
-      - run:
-          name: Install MySQL CLI; Import dummy data; run an example query and verify the output
-          command: |
-            sudo apt-get update
-            sudo apt-get install default-mysql-client
-            sudo mysql -h 127.0.0.1 -u user -ppassw0rd test_db < sql-data/dummy.sql
-            sudo mysql -h 127.0.0.1 -u user -ppassw0rd --execute="SELECT * FROM test_db.Persons"
-            sudo mysql -h 127.0.0.1 -u user -ppassw0rd --execute="SELECT * FROM test_db.users"
-            sudo mysql -h 127.0.0.1 -u user -ppassw0rd --execute="SELECT * FROM test_db.Bill"
-      - run:   
-          name: Install required packages
-          command: |
-            sudo apt-get update && sudo apt-get install wget zip unzip
-      - run :
-          name: Build Artifacts
-          command: |
-            java -version
-            cd WebApplication
-            sudo apt-get update
-            sudo apt install maven
-            mvn clean install               
-                            
   build:
     docker:
-      - image: circleci/openjdk:8u171-jdk
-      - image: circleci/mysql:5.7
-        environment:
-          MYSQL_ROOT_PASSWORD: rootpw
-          MYSQL_DATABASE: test_db
-          MYSQL_USER: user
-          MYSQL_PASSWORD: passw0rd
+      - image: circleci/openjdk:8-jdk
 
     steps:
       - checkout
-      - run: echo "Running build on master" # run the `echo` command
+
       - run:
-      # Our primary container isn't MYSQL so run a sleep command until it's ready.
-          name: Waiting for MySQL to be ready
-          command: |
-            for i in `seq 1 60`;
-            do
-              nc -z 127.0.0.1 3306 && echo Success && exit 0
-              echo -n .
-              sleep 1
-            done
-            echo Failed waiting for MySQL && exit 1
+          name: Install packages
+          command: sudo apt-get update && sudo apt-get install wget zip unzip python2.7 python-pip -y
+
       - run:
-          name: Install MySQL CLI; Import dummy data; run an example query and verify the output
+          name: Install awscli
           command: |
-            sudo apt-get update
-            sudo apt-get install default-mysql-client
-            sudo mysql -h 127.0.0.1 -u user -ppassw0rd test_db < sql-data/dummy.sql
-            sudo mysql -h 127.0.0.1 -u user -ppassw0rd --execute="SELECT * FROM test_db.Persons"
-            sudo mysql -h 127.0.0.1 -u user -ppassw0rd --execute="SELECT * FROM test_db.users"
-            sudo mysql -h 127.0.0.1 -u user -ppassw0rd --execute="SELECT * FROM test_db.Bill"
-      - run:   
-          name: Install required packages
+            sudo pip install awscli
+            aws configure set default.region us-east-1
+      - run:
+          name: Build Artifact
           command: |
-            sudo apt-get update && sudo apt-get install wget zip unzip
-      - run :
-          name: Build Artifacts
-          command: |
-            java -version
             cd WebApplication
+            pwd
+            echo "Listing current directory content"
+            ls -al
             sudo apt-get update
             sudo apt install maven
-            mvn clean install
-workflows:
-  version: 2
-  pr_check:
-    jobs:
-      - pr_check_job                          
-  build-deploy:
-    jobs:
-      - build:
-          filters:
-            branches:
-              only: master
+            mvn spring-boot:run
+            cd target/
+            ls -al
+            cd ../
+            pwd
+            ls -al
+      - run:
+          name: Zip Artifact
+          command: |
+            echo "Hello the current CircleCI build number is ${CIRCLE_BUILD_NUM}"
+            pwd
+            echo "Listing current directory content"
+            ls -al
+            echo "Making the codedeploy_artifact directory"
+            mkdir -p codedeploy_artifact
+            echo "Changing directory to codedeploy_artifact"
+            cd codedeploy_artifact
+            cp ../WebApplication/target/WebApplication-0.0.1-SNAPSHOT.jar .
+            cp ../WebApplication/src/main/resources/*.properties .
+            zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip .
+            rm *.yml *.sh *.properties *.jar
+            ls -al
+            pwd
+            cd ..
+            pwd
+            ls -al
+      - run:
+          name: Upload Artifact to S3
+          command: |
+            aws s3 cp --recursive codedeploy_artifact s3://artifact-bucket-csye6225
+      - run:
+          name: Make CodeDeploy API call
+          command: |
+            echo "Calling CodeDeploy Agent to pick the artifact and deploy on EC2 instance"
+            aws deploy create-deployment --output json --application-name csye6225-webapp --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name csye6225-webapp-deployment --s3-location bucket=artifact-bucket-csye6225,bundleType=zip,key=csye6225-web-app-${CIRCLE_BUILD_NUM}.zip
