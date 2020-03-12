@@ -41,7 +41,13 @@ jobs:
             cp ../WebApplication/src/main/resources/*.properties .
             cp ../codedeploy/*.sh .
             cp ../*.yml .
-
+            zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip .
+            rm *.yml *.sh *.properties *.jar
+            ls -al
+            pwd
+            cd ..
+            pwd
+            ls -al
       - run:
           name: Upload Artifact to S3
           command: |
