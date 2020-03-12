@@ -24,11 +24,9 @@ jobs:
             echo "Listing current directory content"
             ls -al
             mvn clean install
-            cd target/
-            ls -al
-            cd ../
-            pwd
-            ls -al
+            sudo apt-get update
+            sudo apt install maven
+            mvn spring-boot:run
       - run:
           name: Zip Artifact
           command: |            
@@ -44,17 +42,12 @@ jobs:
             cp ../WebApplication/src/main/resources/*.properties .
             cp ../codedeploy/*.sh .
             cp ../*.yml .
-            zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip .
-            rm *.yml *.sh *.properties *.jar
-            ls -al
-            pwd
-            cd ..
-            pwd
-            ls -al
+
       - run:
           name: Upload Artifact to S3
           command: |
             aws s3 cp --recursive codedeploy_artifact s3://${CODE_DEPLOY_S3_BUCKET}
+
       - run:
           name: Make CodeDeploy API call
           command: |
