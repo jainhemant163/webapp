@@ -80,12 +80,14 @@ public class BillController {
 
 	@Autowired
 	PasswordUtil passwordUtil;
-	  private AmazonClient  amazonClient;
+	 
+	@Autowired
+	private AmazonClient  amazonClient;
 
+	    @Autowired
 	    BillController() {
 	        this.amazonClient = new AmazonClient();
 	    }
-
 	   
 	    @PostMapping("/v1/bill/fileupload")
 	    public String uploadFile(@RequestPart(value = "file") MultipartFile file) {
@@ -98,7 +100,6 @@ public class BillController {
 	        return this.amazonClient.deleteFileFromS3Bucket(fileUrl);
 	    }
 	        
-
 	// Post Request for Bill
 	@RequestMapping(value = "/v1/bill", method = RequestMethod.POST, consumes = APPLICATION_JSON_VALUE)
 	@ResponseBody
@@ -111,8 +112,7 @@ public class BillController {
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
 		} else {
-			
-			
+						
 			Bill billObj = new Gson().fromJson(bill, Bill.class);
 			UserAccount account = accountService.currentUser;
 
@@ -340,8 +340,6 @@ public class BillController {
         //fileService.updateFiles(files);
     }
     
-
-
 	// Get file for the bill
 	@RequestMapping(value = "/v1/bill/{billId}/file/{fileId}", method = RequestMethod.GET)
 	public ResponseEntity<FileUpload> getFileById(@PathVariable("billId") String billId,

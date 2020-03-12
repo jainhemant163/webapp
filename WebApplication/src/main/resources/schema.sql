@@ -1,3 +1,6 @@
+
+DROP database users_database;
+CREATE database users_database;
 use users_database;
 
 create table users
@@ -12,6 +15,8 @@ create table users
     constraint users_pk
         unique (id)
 );
+
+insert into users(email,password,firstName,lastName,account_created,account_updated,id) values("22@qq.com","$2y$10$sTEjAha0zxFNV4EMRSuBze1l1kAhLQrENe/IC/ZG4zfjWJwkorUfq","YYJ","XXJ","2018-01-01","2018-01-01",4);    
 
 create table Bill
 (

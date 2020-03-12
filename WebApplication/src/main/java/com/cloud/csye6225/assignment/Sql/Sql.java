@@ -14,280 +14,289 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import com.cloud.csye6225.assignment.entity.UserAccount;
+import javax.annotation.PostConstruct;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.amazonaws.annotation.Beta;
+import com.cloud.csye6225.assignment.entity.UserAccount;
 
 /**
  * @author jainh
  *
  */
+
+@Service
 public class Sql {
-	 public Connection getConnection(){
-	        String driver="com.mysql.cj.jdbc.Driver";   
-//	        String url="jdbc:mysql://csye6225-spring2020.cqgmm4m0xh7h.us-east-1.rds.amazonaws.com:3306/csye6225-spring2020";
-//	        String name="dbuser";
-//	        String pwd="csye6225password";
-	        
-	        String url="jdbc:mysql://csye6225-spring2020.cqgmm4m0xh7h.us-east-1.rds.amazonaws.com:3306/users_database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
-	        String name="root";
-	        String pwd="root123!";
-	      
 
-	        try{
-	            Class.forName(driver);
-	            Connection conn=DriverManager.getConnection(url,name,pwd);
-	            return conn;
-	        }catch(ClassNotFoundException e){
-	            e.printStackTrace();
-	            return null;
-	        }catch(SQLException e){
-	            e.printStackTrace();
-	            return null;
-	        }
-	    }
+	@Value("${amazonProperties.url}")
+	private String url1 ="";
 
-	    public List<UserAccount> getAccounts(){
-	        Connection conn = null;
-	        Statement stmt = null;
-	        List<UserAccount> result = null;
-	        try{
-	            conn = getConnection();
-	            stmt = conn.createStatement();
-	            String sql = "SELECT id, email, firstName, lastName, account_created, account_updated from users";
-	            ResultSet rs = stmt.executeQuery(sql);
-	            result = new ArrayList<UserAccount>();
+//	@Value("$name")
+//	private String name;
+//
+//	@Value("$pwd")
+//	private String pwd;
 
-	            while(rs.next()){
-	                String id = rs.getString("id");
-	                String email = rs.getString("email");
-	                String fn = rs.getString("firstName");
-	                String ln = rs.getString("lastName");
-	                //Date create_date = rs.getDate("account_created");
-	                //string createDateString = create_date.toString();
-	                String create = rs.getString("account_created").toString();
-	                String update = rs.getString("account_updated").toString();
+	@PostConstruct
+	public Connection getConnection() throws SQLException {
+		String driver = "com.mysql.cj.jdbc.Driver";
 
-	                UserAccount item =  new UserAccount(id, email, fn, ln, create, update);
-	                result.add(item);
+	//String url = 	 "jdbc:mysql://" + url1 +"?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
+		String url = "jdbc:mysql://" + url1;
+//		String url = "jdbc:mysql://csye6225-spring2020.cqgmm4m0xh7h.us-east-1.rds.amazonaws.com:3306/users_database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 
+		String name = "root";
+		String pwd = "root123!";
 
-	            }
+		try {
+			Class.forName(driver);
+			Connection conn = DriverManager.getConnection(url, name, pwd);
+			return conn;
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
 
-	            return result;
+	public List<UserAccount> getAccounts() {
+		Connection conn = null;
+		Statement stmt = null;
+		List<UserAccount> result = null;
+		try {
+			conn = getConnection();
+			stmt = conn.createStatement();
+			String sql = "SELECT id, email, firstName, lastName, account_created, account_updated from users";
+			ResultSet rs = stmt.executeQuery(sql);
+			result = new ArrayList<UserAccount>();
 
-	        }catch (SQLException ex){
-	            ex.printStackTrace();
-	        }catch(Exception ex){
-	            ex.printStackTrace();
-	        }finally{
-	            try{
-	                if(stmt != null){
-	                    conn.close();
-	                }
-	            }catch(SQLException ex){
-	            }
-	            try {
-	                if(conn != null){
-	                    conn.close();
-	                }
-	            }catch (SQLException ex){
+			while (rs.next()) {
+				String id = rs.getString("id");
+				String email = rs.getString("email");
+				String fn = rs.getString("firstName");
+				String ln = rs.getString("lastName");
+				// Date create_date = rs.getDate("account_created");
+				// string createDateString = create_date.toString();
+				String create = rs.getString("account_created").toString();
+				String update = rs.getString("account_updated").toString();
 
-	            }
-	        }
+				UserAccount item = new UserAccount(id, email, fn, ln, create, update);
+				result.add(item);
 
+			}
 
-	        return  result;
+			return result;
 
-	    }
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		} finally {
+			try {
+				if (stmt != null) {
+					conn.close();
+				}
+			} catch (SQLException ex) {
+			}
+			try {
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException ex) {
 
+			}
+		}
 
-	    public UserAccount getAccountByEmail(String email){
-	        Connection conn = null;
-	        Statement stmt = null;
-	        List<UserAccount> results = new ArrayList<UserAccount>();
-	        try{
-	            conn = getConnection();
-	            stmt = conn.createStatement();
-	            String sql = "SELECT id, email, password, firstName, lastName, account_created, account_updated from users where email='"+email+"'";
-	            ResultSet rs = stmt.executeQuery(sql);
+		return result;
 
-	            while(rs.next()){
-	                String id = rs.getString("id");
-	                String e = rs.getString("email");
-	                String fn = rs.getString("firstName");
-	                String ln = rs.getString("lastName");
-	                String create = rs.getString("account_created").toString();
-	                String update = rs.getString("account_updated").toString();
+	}
 
-	                UserAccount item =  new UserAccount(id, e, fn, ln, create, update);
-	                item.setPassword(rs.getString("password"));
-	                results.add(item);
-	            }
+	public UserAccount getAccountByEmail(String email) {
+		Connection conn = null;
+		Statement stmt = null;
+		List<UserAccount> results = new ArrayList<UserAccount>();
+		try {
+			conn = getConnection();
+			stmt = conn.createStatement();
+			String sql = "SELECT id, email, password, firstName, lastName, account_created, account_updated from users where email='"
+					+ email + "'";
+			ResultSet rs = stmt.executeQuery(sql);
 
-	        }catch (SQLException ex){
-	            ex.printStackTrace();
-	        }catch(Exception ex){
-	            ex.printStackTrace();
-	        }finally{
-	            try{
-	                if(stmt != null){
-	                    conn.close();
-	                }
-	            }catch(SQLException ex){
-	            }
-	            try {
-	                if(conn != null){
-	                    conn.close();
-	                }
-	            }catch (SQLException ex){
+			while (rs.next()) {
+				String id = rs.getString("id");
+				String e = rs.getString("email");
+				String fn = rs.getString("firstName");
+				String ln = rs.getString("lastName");
+				String create = rs.getString("account_created").toString();
+				String update = rs.getString("account_updated").toString();
 
-	            }
-	        }
+				UserAccount item = new UserAccount(id, e, fn, ln, create, update);
+				item.setPassword(rs.getString("password"));
+				results.add(item);
+			}
 
-	        int length = 0;
-	        length = results.size();
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		} finally {
+			try {
+				if (stmt != null) {
+					conn.close();
+				}
+			} catch (SQLException ex) {
+			}
+			try {
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException ex) {
 
-	        if(length == 0)
-	            return null;
-	        else
-	            return results.get(0);
+			}
+		}
 
-	    }
+		int length = 0;
+		length = results.size();
 
-	    public void updateAccount(UserAccount account){
-	        String email = account.getEmail();
-	        String password = account.getPassword();
-	        String firstName = account.getFirstName();
-	        String lastName = account.getLastName();
-	        Calendar calendar = Calendar.getInstance();
-	        Date time = calendar.getTime();
-	        String user_updated = time.toString();
+		if (length == 0)
+			return null;
+		else
+			return results.get(0);
 
-	        Connection conn = null;
-	        Statement stmt = null;
-	        List<UserAccount> result = null;
-	        try{
-	            conn = getConnection();
-	            stmt = conn.createStatement();
+	}
+
+	public void updateAccount(UserAccount account) {
+		String email = account.getEmail();
+		String password = account.getPassword();
+		String firstName = account.getFirstName();
+		String lastName = account.getLastName();
+		Calendar calendar = Calendar.getInstance();
+		Date time = calendar.getTime();
+		String user_updated = time.toString();
+
+		Connection conn = null;
+		Statement stmt = null;
+		List<UserAccount> result = null;
+		try {
+			conn = getConnection();
+			stmt = conn.createStatement();
 //	            if(password!=null){
 //	                String sql = "update users set password = '"+password+"'/*, account_updated = '"+user_updated+"' */where email = '"+email+"'";
 //	                String sql1 = "update users set /*password = '"+password+"',*/ account_updated = '"+user_updated+"' where email = '"+email+"'";
 //	                stmt.execute(sql);
 //	                stmt.execute(sql1);
-	//
+			//
 //	            }
 //	            if(firstName!=null){
 //	                String sql = "insert users set firstName='"+firstName+"', account_updated='"+user_updated+"' where email='"+email+"'";
 //	                stmt.execute(sql);
-	//
+			//
 //	            }
 //	            if(lastName!=null){
 //	                String sql = "insert users set lastName='"+lastName+"', account_updated='"+user_updated+"' where email='"+email+"'";
 //	                stmt.execute(sql);
-	//
+			//
 //	            }
-	            //validation in account service;
-	            String query = String.format("update users set " +
-	                    "password = \"%s\", " +
-	                    "firstName = \"%s\", " +
-	                    "lastName = \"%s\", "+
-	                    "account_updated = \"%s\" where email = \"%s\";",
-	                    password,
-	                    firstName,
-	                    lastName,
-	                    user_updated,
-	                    email
-	                    );
-	            stmt.execute(query);
+			// validation in account service;
+			String query = String.format(
+					"update users set " + "password = \"%s\", " + "firstName = \"%s\", " + "lastName = \"%s\", "
+							+ "account_updated = \"%s\" where email = \"%s\";",
+					password, firstName, lastName, user_updated, email);
+			stmt.execute(query);
 //	            conn.commit();
-	        }catch (SQLException ex){
-	            ex.printStackTrace();
-	        }catch(Exception ex){
-	            ex.printStackTrace();
-	        }finally{
-	            try{
-	                if(stmt != null){
-	                    conn.close();
-	                }
-	            }catch(SQLException ex){
-	            }
-	            try {
-	                if(conn != null){
-	                    conn.close();
-	                }
-	            }catch (SQLException ex){
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		} finally {
+			try {
+				if (stmt != null) {
+					conn.close();
+				}
+			} catch (SQLException ex) {
+			}
+			try {
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException ex) {
 
-	            }
-	        }
-
-	    }
-
-	    public void addAccount(UserAccount account){
-	        String id = account.getUserId();
-	        String email = account.getEmail();
-	        String password = account.getPassword();
-	        String firstName = account.getFirstName();
-	        String lastName = account.getLastName();
-	        Calendar calendar = Calendar.getInstance();
-	        Date time = calendar.getTime();
-	        String user_created = time.toString();
-	        //Date userCreate = calendar.getTime();
-	        //userCreate sql;
-	        Connection conn = null;
-	        Statement stmt = null;
-	        List<UserAccount> result = null;
-	        try{
-	            conn = getConnection();
-	            stmt = conn.createStatement();
-	            String sql = "insert into users (id, email, password, firstName, lastName, account_created, account_updated) values ('"+id+"','"+email+"','"+password+"','"+firstName+"','"+lastName+"','"+user_created+"','"+user_created+"')";
-	            //ResultSet rs = stmt.executeQuery(sql);
-	            //result = new ArrayList<Account>();
-	            stmt.execute(sql);
-
-	        }
-	        catch (SQLException ex){
-	            ex.printStackTrace();
-	        }catch(Exception ex){
-	            ex.printStackTrace();
-	        }finally{
-	            try{
-	                if(stmt != null){
-	                    conn.close();
-	                }
-	            }catch(SQLException ex){
-	            }
-	            try {
-	                if(conn != null){
-	                    conn.close();
-	                }
-	            }catch (SQLException ex){
-
-	            }
-	        }
-	    }
-
-	    public void closeAll(Connection conn,PreparedStatement ps,ResultSet rs){
-	        try{
-	            if(rs!=null){
-	                rs.close();
-	            }
-	        }catch(SQLException e){
-	            e.printStackTrace();
-	        }
-	        try{
-	            if(ps!=null){
-	                ps.close();
-	            }
-	        }catch(SQLException e){
-	            e.printStackTrace();
-	        }
-	        try{
-	            if(conn!=null){
-	                conn.close();
-	            }
-	        }catch(SQLException e){
-	            e.printStackTrace();
-	        }
-	    }
+			}
+		}
 
 	}
+
+	public void addAccount(UserAccount account) {
+		String id = account.getUserId();
+		String email = account.getEmail();
+		String password = account.getPassword();
+		String firstName = account.getFirstName();
+		String lastName = account.getLastName();
+		Calendar calendar = Calendar.getInstance();
+		Date time = calendar.getTime();
+		String user_created = time.toString();
+		// Date userCreate = calendar.getTime();
+		// userCreate sql;
+		Connection conn = null;
+		Statement stmt = null;
+		List<UserAccount> result = null;
+		try {
+			conn = getConnection();
+			stmt = conn.createStatement();
+			String sql = "insert into users (id, email, password, firstName, lastName, account_created, account_updated) values ('"
+					+ id + "','" + email + "','" + password + "','" + firstName + "','" + lastName + "','"
+					+ user_created + "','" + user_created + "')";
+			// ResultSet rs = stmt.executeQuery(sql);
+			// result = new ArrayList<Account>();
+			stmt.execute(sql);
+
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		} finally {
+			try {
+				if (stmt != null) {
+					conn.close();
+				}
+			} catch (SQLException ex) {
+			}
+			try {
+				if (conn != null) {
+					conn.close();
+				}
+			} catch (SQLException ex) {
+
+			}
+		}
+	}
+
+	public void closeAll(Connection conn, PreparedStatement ps, ResultSet rs) {
+		try {
+			if (rs != null) {
+				rs.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try {
+			if (ps != null) {
+				ps.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		try {
+			if (conn != null) {
+				conn.close();
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+}
