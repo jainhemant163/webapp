@@ -37,10 +37,10 @@ public class WebApplicationTests {
 //	private String getRootUrl() {
 //		return "http://localhost:" + port;
 //	}
-//
-	@Test
-	public void contextLoads() {
-	}
+
+//	@Test
+//	public void contextLoads() {
+//	}
 
 //	@Test
 //	

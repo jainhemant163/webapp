@@ -33,11 +33,11 @@ public class SqlBill {
 	@Value("${amazonProperties.url}")
 	private String url1;
 
-	@Value("${amazonProperties.name}")
-	private String name;
-
-	@Value("${amazonProperties.pwd}")
-	private String pwd;
+//	@Value("$name")
+//	private String name;
+//
+//	@Value("$pwd")
+//	private String pwd;
 
 	@PostConstruct
 	public Connection getConnection() throws SQLException {
@@ -46,10 +46,11 @@ public class SqlBill {
 //		String name = "root";
 //		String pwd = "Hemant@123";
 
+	//	String url ="jdbc:mysql://" + url1 +"?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
 		String url = "jdbc:mysql://" + url1;
 //	    String url="jdbc:mysql://csye6225-spring2020.cqgmm4m0xh7h.us-east-1.rds.amazonaws.com:3306/users_database?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC";
-//        String name="root";
-//        String pwd="root123!";
+        String name="root";
+        String pwd="root123!";
 
 		try {
 			Class.forName(driver);
