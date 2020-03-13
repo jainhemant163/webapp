@@ -50,10 +50,10 @@ public class AmazonClient {
 
 	private AmazonS3 s3client;
 
-	@Value("$endpointUrl")
+	@Value("${endpointUrl}")
 	private String endpointUrl;
 
-	@Value("$bucketName")
+	@Value("${bucketName}")
 	private String bucketName;
 
 	@Value("$accessKey")
