@@ -107,7 +107,7 @@ public class AmazonClient {
 	}
 
 	private void uploadFileTos3bucket(String fileName, File file) {
-		// System.out.println(endpointUrl +"llllllllllllllllllllllllllll"+ bucketName);
+		 System.out.println(endpointUrl +"llllllllllllllllllllllllllll"+ bucketName);
 		s3client.putObject(new PutObjectRequest(bucketName, fileName, file));
 		 //.withCannedAcl(CannedAccessControlList.PublicRead));
 	}
