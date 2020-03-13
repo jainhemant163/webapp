@@ -23,10 +23,9 @@ jobs:
             pwd
             echo "Listing current directory content"
             ls -al
-            mvn clean install
             sudo apt-get update
             sudo apt install maven
-            mvn spring-boot:run
+            mvn clean install                   
       - run:
           name: Zip Artifact
           command: |            
@@ -42,7 +41,13 @@ jobs:
             cp ../WebApplication/src/main/resources/*.properties .
             cp ../codedeploy/*.sh .
             cp ../*.yml .
-
+            zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip .
+            rm *.yml *.sh *.properties *.jar
+            ls -al
+            pwd
+            cd ..
+            pwd
+            ls -al
       - run:
           name: Upload Artifact to S3
           command: |
