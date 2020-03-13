@@ -108,8 +108,8 @@ public class AmazonClient {
 
 	private void uploadFileTos3bucket(String fileName, File file) {
 		// System.out.println(endpointUrl +"llllllllllllllllllllllllllll"+ bucketName);
-		s3client.putObject(new PutObjectRequest(bucketName, fileName, file));
-		// .withCannedAcl(CannedAccessControlList.PublicRead));
+		s3client.putObject(new PutObjectRequest(bucketName, fileName, file)
+		 .withCannedAcl(CannedAccessControlList.PublicRead));
 	}
 
 	public String deleteFileFromS3Bucket(String fileUrl) {
