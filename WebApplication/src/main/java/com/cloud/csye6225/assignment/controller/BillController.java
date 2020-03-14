@@ -395,7 +395,22 @@ public ResponseEntity<?> deleteFile1(@PathVariable("billId") String billId, @Pat
             isSuccess = fileService.deleteFile(fileId);
             
         
-             billById.setAttachment("NULL");
+//            ObjectMapper mapperObj = new ObjectMapper();
+//            Map<String, Object> displayFile = new HashMap<>();
+//
+//            displayFile.put("file_name", "");
+//            displayFile.put("id","");
+//            displayFile.put("url", "");
+//            displayFile.put("upload_date","");
+//
+//            
+//            mapperObj.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS , false);
+//            String jsonResp = mapperObj.writeValueAsString(displayFile);
+//            System.out.println(jsonResp);
+            
+            
+            
+             billById.setAttachment("");
              billService.updateBill(billById);
              
             if (isSuccess)
