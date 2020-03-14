@@ -239,7 +239,11 @@ public class SqlBill {
 						+ ";";
 				stmt.execute(query1);
 			}
-		
+			else if(attachment.equals("NULL")) {
+				String query1 = "update Bill set attachment = " + "'" + attachment + "'" + "where id =" + "'" + id + "'"
+						+ ";";
+				stmt.execute(query1);
+			}
 		} catch (SQLException ex) {
 			ex.printStackTrace();
 		} catch (Exception ex) {

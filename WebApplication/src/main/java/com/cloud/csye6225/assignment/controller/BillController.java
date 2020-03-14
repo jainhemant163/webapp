@@ -381,7 +381,8 @@ public ResponseEntity<?> deleteFile1(@PathVariable("billId") String billId, @Pat
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
         } else {
-
+        	
+        	Bill billById = billService.getBillById(billId);
             FileUpload file = fileService.getFileById(fileId);
 
             if (file == null) {
@@ -392,7 +393,7 @@ public ResponseEntity<?> deleteFile1(@PathVariable("billId") String billId, @Pat
             this.amazonClient.deleteFileFromS3Bucket(imageUrl);
 
             isSuccess = fileService.deleteFile(fileId);
-            Bill billById = billService.getBillById(billId);
+            
         
              billById.setAttachment("NULL");
              billService.updateBill(billById);
