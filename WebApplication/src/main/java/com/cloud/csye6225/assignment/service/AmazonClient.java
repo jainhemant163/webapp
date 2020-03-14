@@ -56,10 +56,10 @@ public class AmazonClient {
 	@Value("${bucketName}")
 	private String bucketName;
 
-	@Value("$accessKey")
+	@Value("${accessKey}")
 	private String accessKey;
 
-	@Value("$secretKey")
+	@Value("${secretKey}")
 	private String secretKey;
 
 	@PostConstruct
@@ -110,6 +110,7 @@ public class AmazonClient {
 		 System.out.println(endpointUrl +"llllllllllllllllllllllllllll"+ bucketName);
 		s3client.putObject(new PutObjectRequest(bucketName, fileName, file));
 		 //.withCannedAcl(CannedAccessControlList.PublicRead));
+		System.out.println("Uploaded Successfully");
 	}
 
 	public String deleteFileFromS3Bucket(String fileUrl) {
