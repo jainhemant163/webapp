@@ -260,7 +260,7 @@ public class BillController {
         /** Below data is what we saving into database */
          Bill billById = billService.getBillById(id);
          
-        
+         FileUpload d=null;
         if (attachment.isEmpty()) {
             return new ResponseEntity<FileUpload>(HttpStatus.OK);
         }
@@ -276,13 +276,13 @@ public class BillController {
           if(isNullOrEmpty(billById.getAttachment())) {
         try {
             /** File will get saved to file system and database */
-            saveUploadedFiles(billById,Arrays.asList(attachment));
+        	d =   saveUploadedFiles(billById,Arrays.asList(attachment));
         } catch (IOException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
           }
         
-        return new ResponseEntity<FileUpload>(HttpStatus.OK);
+        return new ResponseEntity<FileUpload>(d,HttpStatus.OK);
 
     }
     
@@ -290,7 +290,8 @@ public class BillController {
    private static String UPLOADED_FOLDER = "/home/hemant/CSYE6225-workspace/";
 
     
-    private void saveUploadedFiles(Bill billById,List<MultipartFile> files) throws IOException {
+    private FileUpload saveUploadedFiles(Bill billById,List<MultipartFile> files) throws IOException {
+    	FileUpload metaData = new FileUpload();
         for (MultipartFile file : files) {
             if (file.isEmpty()) {
                 continue; 
@@ -298,7 +299,7 @@ public class BillController {
 //            byte[] bytes = file.getBytes();
 //            Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
 //            Files.write(path, bytes);
-            FileUpload metaData = new FileUpload();
+            
         
         metaData.setFile_name(file.getOriginalFilename() + new Date().toString());
         metaData.setUpload_date(new Date().toString());
@@ -337,6 +338,7 @@ public class BillController {
         //fileService.updateFiles(files);
 
         }
+		return metaData;
     }    
 
     
@@ -395,22 +397,20 @@ public ResponseEntity<?> deleteFile1(@PathVariable("billId") String billId, @Pat
             isSuccess = fileService.deleteFile(fileId);
             
         
-//            ObjectMapper mapperObj = new ObjectMapper();
-//            Map<String, Object> displayFile = new HashMap<>();
-//
-//            displayFile.put("file_name", "");
-//            displayFile.put("id","");
-//            displayFile.put("url", "");
-//            displayFile.put("upload_date","");
-//
-//            
-//            mapperObj.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS , false);
-//            String jsonResp = mapperObj.writeValueAsString(displayFile);
-//            System.out.println(jsonResp);
+            ObjectMapper mapperObj = new ObjectMapper();
+            Map<String, Object> displayFile = new HashMap<>();
+
+            displayFile.put("file_name", "");
+            displayFile.put("id","");
+            displayFile.put("url", "");
+            displayFile.put("upload_date","");
+
             
+            mapperObj.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS , false);
+            String jsonResp = mapperObj.writeValueAsString(displayFile);
+            System.out.println(jsonResp);         
             
-            
-             billById.setAttachment("");
+             billById.setAttachment(jsonResp);
              billService.updateBill(billById);
              
             if (isSuccess)
