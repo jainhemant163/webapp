@@ -394,7 +394,7 @@ public ResponseEntity<?> deleteFile1(@PathVariable("billId") String billId, @Pat
             isSuccess = fileService.deleteFile(fileId);
             Bill billById = billService.getBillById(billId);
         
-             billById.setAttachment(null);
+             billById.setAttachment("E");
              billService.updateBill(billById);
              
             if (isSuccess)
