@@ -3,4 +3,4 @@ amazonProperties:
   #accessKey: AKIAIE4YAZOXOFQR4MTA
   #secretKey: 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
   #bucketName: dev-demo1-s3bucket-16xxsoj544v5p
-  url: $awsRDS?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+  url: ${awsRDS}?useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
