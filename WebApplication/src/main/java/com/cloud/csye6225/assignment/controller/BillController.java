@@ -290,8 +290,10 @@ public class BillController {
     private void saveUploadedFiles(Bill billById,List<MultipartFile> files) throws IOException {
         for (MultipartFile file : files) {
             if (file.isEmpty()) {
-                continue; 
+                
+            	continue; 
             }
+            
             byte[] bytes = file.getBytes();
             Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
             Files.write(path, bytes);
