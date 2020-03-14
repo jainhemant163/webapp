@@ -44,7 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.cloud.csye6225.assignment.entity.Bill;
 import com.cloud.csye6225.assignment.entity.FileUpload;
 import com.cloud.csye6225.assignment.entity.UserAccount;
@@ -98,7 +98,8 @@ public class BillController {
 	    @DeleteMapping("/v1/bill/filedelete")
 	    public String deleteFile(@RequestPart(value = "url") String fileUrl) {
 	        return this.amazonClient.deleteFileFromS3Bucket(fileUrl);
-	    }
+	    } 
+	    
 	        
 	// Post Request for Bill
 	@RequestMapping(value = "/v1/bill", method = RequestMethod.POST, consumes = APPLICATION_JSON_VALUE)
@@ -249,7 +250,6 @@ public class BillController {
         return true;
     }	
 	//Post File for the bill
-
     @RequestMapping(value = "/v1/bill/{id}/file", method = RequestMethod.POST)
     public ResponseEntity<FileUpload> uploadFile(@PathVariable String id,@RequestParam("file") MultipartFile attachment,
             final HttpServletRequest request) {

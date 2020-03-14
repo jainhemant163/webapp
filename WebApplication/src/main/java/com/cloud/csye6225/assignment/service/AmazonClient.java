@@ -50,16 +50,16 @@ public class AmazonClient {
 
 	private AmazonS3 s3client;
 
-	@Value("$endpointUrl")
+	@Value("${endpointUrl}")
 	private String endpointUrl;
 
-	@Value("$bucketName")
+	@Value("${bucketName}")
 	private String bucketName;
 
-	@Value("$accessKey")
+	@Value("${accessKey}")
 	private String accessKey;
 
-	@Value("$secretKey")
+	@Value("${secretKey}")
 	private String secretKey;
 
 	@PostConstruct
@@ -107,9 +107,10 @@ public class AmazonClient {
 	}
 
 	private void uploadFileTos3bucket(String fileName, File file) {
-		// System.out.println(endpointUrl +"llllllllllllllllllllllllllll"+ bucketName);
+		 System.out.println(endpointUrl +"llllllllllllllllllllllllllll"+ bucketName);
 		s3client.putObject(new PutObjectRequest(bucketName, fileName, file));
-		// .withCannedAcl(CannedAccessControlList.PublicRead));
+		 //.withCannedAcl(CannedAccessControlList.PublicRead));
+		System.out.println("Uploaded Successfully");
 	}
 
 	public String deleteFileFromS3Bucket(String fileUrl) {
