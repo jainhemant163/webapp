@@ -58,6 +58,7 @@ import com.cloud.csye6225.assignment.util.PasswordUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 /**
  * @author jainh
@@ -198,6 +199,15 @@ public class BillController {
 		} else {
 
 			Bill bill = billService.getBillById(billId);
+			String billattach= bill.getAttachment();
+			
+			Gson g = new Gson();
+			FileUpload p = g.fromJson(billattach, FileUpload.class);
+           		
+			System.out.println(billattach);
+			String imageUrl= p.getUrl();
+			String fileId=p.getId();
+			
 			if (SecurityContextHolder.getContext().getAuthentication() != null
 					&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
 				// response.put("message", "you are not logged in!!!");
@@ -208,7 +218,12 @@ public class BillController {
 				if (bill == null) {
 					return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 				}
-				isSuccess = billService.deleteBillById(billId);
+
+				this.amazonClient.deleteFileFromS3Bucket(imageUrl);
+	            fileService.deleteFile(fileId);
+	        	isSuccess = billService.deleteBillById(billId);
+				
+				
 
 				if (isSuccess)
 					return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
@@ -409,6 +424,7 @@ public ResponseEntity<?> deleteFile1(@PathVariable("billId") String billId, @Pat
             mapperObj.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS , false);
             String jsonResp = mapperObj.writeValueAsString(displayFile);
             System.out.println(jsonResp);         
+            
             
              billById.setAttachment(jsonResp);
              billService.updateBill(billById);
