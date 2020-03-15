@@ -81,40 +81,38 @@ public class BillController {
 
 	@Autowired
 	PasswordUtil passwordUtil;
-	 
+
 	@Autowired
-	private AmazonClient  amazonClient;
+	private AmazonClient amazonClient;
 
-	    @Autowired
-	    BillController() {
-	        this.amazonClient = new AmazonClient();
-	    }
-	   
-	    @PostMapping("/v1/bill/fileupload")
-	    public String uploadFile(@RequestPart(value = "file") MultipartFile file) {
-	    	
-	        return this.amazonClient.uploadFile(file);
-	    }
+	@Autowired
+	BillController() {
+		this.amazonClient = new AmazonClient();
+	}
 
-	    @DeleteMapping("/v1/bill/filedelete")
-	    public String deleteFile(@RequestPart(value = "url") String fileUrl) {
-	        return this.amazonClient.deleteFileFromS3Bucket(fileUrl);
-	    } 
-	    
-	        
+	@PostMapping("/v1/bill/fileupload")
+	public String uploadFile(@RequestPart(value = "file") MultipartFile file) {
+
+		return this.amazonClient.uploadFile(file);
+	}
+
+	@DeleteMapping("/v1/bill/filedelete")
+	public String deleteFile(@RequestPart(value = "url") String fileUrl) {
+		return this.amazonClient.deleteFileFromS3Bucket(fileUrl);
+	}
+
 	// Post Request for Bill
 	@RequestMapping(value = "/v1/bill", method = RequestMethod.POST, consumes = APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<Bill> registerPost(@RequestBody String bill) {
 
-		
 		if (SecurityContextHolder.getContext().getAuthentication() != null
 				&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
 			// response.put("message", "you are not logged in!!!");
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
 		} else {
-						
+
 			Bill billObj = new Gson().fromJson(bill, Bill.class);
 			UserAccount account = accountService.currentUser;
 
@@ -122,7 +120,7 @@ public class BillController {
 			billObj.setCreated_ts(new Date().toString());
 			billObj.setUpdated_ts(new Date().toString());
 			billObj.setOwner_id(account.getId());
-	
+
 			billService.addBill(billObj);
 			return new ResponseEntity<>(billObj, HttpStatus.OK);
 		}
@@ -135,7 +133,6 @@ public class BillController {
 //      if() return null;// log in or not
 		// get user id after log in
 
- 
 		Collection<Bill> bills1 = null;
 		// check whether user logged in using the basic auth credentials or not
 		if (SecurityContextHolder.getContext().getAuthentication() != null
@@ -199,15 +196,15 @@ public class BillController {
 		} else {
 
 			Bill bill = billService.getBillById(billId);
-			String billattach= bill.getAttachment();
-			
+			String billattach = bill.getAttachment();
+
 			Gson g = new Gson();
 			FileUpload p = g.fromJson(billattach, FileUpload.class);
-           		
+
 			System.out.println(billattach);
-			String imageUrl= p.getUrl();
-			String fileId=p.getId();
-			
+			String imageUrl = p.getUrl();
+			String fileId = p.getId();
+
 			if (SecurityContextHolder.getContext().getAuthentication() != null
 					&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
 				// response.put("message", "you are not logged in!!!");
@@ -218,12 +215,10 @@ public class BillController {
 				if (bill == null) {
 					return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 				}
-				
+
 				this.amazonClient.deleteFileFromS3Bucket(imageUrl);
-	            fileService.deleteFile(fileId);
-	        	isSuccess = billService.deleteBillById(billId);
-				
-				
+				fileService.deleteFile(fileId);
+				isSuccess = billService.deleteBillById(billId);
 
 				if (isSuccess)
 					return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
@@ -258,602 +253,175 @@ public class BillController {
 			return new ResponseEntity<Bill>(bill, HttpStatus.OK);
 		}
 	}
-	
-    public static boolean isNullOrEmpty(String str) {
-        if(str != null && !str.isEmpty())
-            return false;
-        return true;
-    }	
-<<<<<<< HEAD
-//	//Post File for the bill
-//    @RequestMapping(value = "/v1/bill/{id}/file", method = RequestMethod.POST)
-//    public ResponseEntity<FileUpload> uploadFile(@PathVariable String id,@RequestParam("file") MultipartFile attachment,
-//            final HttpServletRequest request) {
-//
-//        /** Below data is what we saving into database */
-//         Bill billById = billService.getBillById(id);
-//         
-//        
-//        if (attachment.isEmpty()) {
-//            return new ResponseEntity<FileUpload>(HttpStatus.OK);
-//        }
-////         if(!billById.getAttachment().equals(null)) {
-////        	 return new ResponseEntity<String>("Already a file is attached", HttpStatus.BAD_REQUEST);
-////         }
-//        
-//          if(!attachment.getContentType().equals("image/jpg") && !attachment.getContentType().equals("image/jpeg")
-//                   &&  !attachment.getContentType().equals("application/pdf") && !attachment.getContentType().equals("image/png")){
-//                        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//                    }
-//          
-//          if(isNullOrEmpty(billById.getAttachment())) {
-//        try {
-//            /** File will get saved to file system and database */
-//            saveUploadedFiles(billById,Arrays.asList(attachment));
-//        } catch (IOException e) {
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-//          }
-//        
-//        return new ResponseEntity<FileUpload>(HttpStatus.OK);
-//
-//    }
-//    
-//   // private static final String UPLOADED_FOLDER = System.getProperty("user.dir")+"/src/main/resources/static/images/";
-//   private static String UPLOADED_FOLDER = "/home/hemant/CSYE6225-workspace/";
-//
-//    
-//    private void saveUploadedFiles(Bill billById,List<MultipartFile> files) throws IOException {
-//        for (MultipartFile file : files) {
-//            if (file.isEmpty()) {
-//                continue; 
-//            }
-//            byte[] bytes = file.getBytes();
-//            Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
-//            Files.write(path, bytes);
-//            saveMetaData(billById,file);
-//
-//        }
-//    }    
-//    
-//  //  private static final String UPLOAD_FOLDER = System.getProperty("user.dir")+"/src/main/resources/static/images/";
-//
-//    private void saveMetaData(Bill billById,MultipartFile file) throws IOException {
-//                
-//          
-//        FileUpload metaData = new FileUpload();
-//        
-//        metaData.setFile_name(file.getOriginalFilename() + new Date().toString());
-//        metaData.setUpload_date(new Date().toString());
-//        metaData.setUrl(UPLOADED_FOLDER);
-//        metaData.setId(UUID.randomUUID().toString());
-//        
-//    
-//         ObjectMapper mapperObj = new ObjectMapper();
-//         Map<String, Object> displayFile = new HashMap<>();
-//
-//         displayFile.put("file_name", metaData.getFile_name());
-//         displayFile.put("id", metaData.getId());
-//         displayFile.put("url", metaData.getUrl());
-//         displayFile.put("upload_date", metaData.getUpload_date());
-//
-//         
-//         mapperObj.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS , false);
-//         String jsonResp = mapperObj.writeValueAsString(displayFile);
-//         System.out.println(jsonResp);
-//         
-//         
-//         Gson gson = new Gson();
-//
-//         //convert java object to JSON format
-//         String json = gson.toJson(jsonResp);    
-//         
-//         
-//         billById.setAttachment(jsonResp);        
-//         billService.updateBill(billById);
-// 
-//        fileService.addFile(metaData);
-//        //fileService.updateFiles(files);
-//    }
-//    
-//	// Get file for the bill
-//	@RequestMapping(value = "/v1/bill/{billId}/file/{fileId}", method = RequestMethod.GET)
-//	public ResponseEntity<FileUpload> getFileById(@PathVariable("billId") String billId,
-//			@PathVariable("fileId") String fileId) {
-//
-//		if (SecurityContextHolder.getContext().getAuthentication() != null
-//				&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
-//			// response.put("message", "you are not logged in!!!");
-//			return new ResponseEntity<FileUpload>(HttpStatus.BAD_REQUEST);
-//
-//		} else {
-//
-//			if (billId == null) {
-//				return new ResponseEntity<FileUpload>(HttpStatus.NO_CONTENT);
-//			}
-//
-//			else {
-//				FileUpload file = fileService.getFileById(fileId);
-//				if (file == null) {
-//					return new ResponseEntity<FileUpload>(HttpStatus.NOT_FOUND);
-//				}
-//
-//				return new ResponseEntity<FileUpload>(file, HttpStatus.OK);
-//			}
-//		}
-//	}
-//
-//	// DELETE the file for the bill
-//	@RequestMapping(value = "/v1/bill/{billId}/file/{fileId}", method = RequestMethod.DELETE)
-//	public ResponseEntity<?> deleteFile(@PathVariable("billId") String billId, @PathVariable("fileId") String fileId) throws IOException {
-//		boolean isSuccess = false;
-//		if (billId == null) {
-//			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//		} else {
-//
-//			if (SecurityContextHolder.getContext().getAuthentication() != null
-//					&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
-//				// response.put("message", "you are not logged in!!!");
-//				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//
-//			} else {
-//				FileUpload file = fileService.getFileById(fileId);
-//
-//				if (file == null) {
-//					return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//				}
-//		        
-//		        Path fileToDeletePath = Paths.get(UPLOADED_FOLDER + file.getFile_name());
-//		        Files.delete(fileToDeletePath);
-//		        
-//		        isSuccess = fileService.deleteFile(fileId);
-//		        Bill billById = billService.getBillById(billId);
-//		    
-//		         billById.setAttachment("NULL");
-//		         billService.updateBill(billById);
-//		         
-//		         
-//		       
-//	
-//				if (isSuccess)
-//					return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
-//				else
-//					return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//			}
-//		}
-//
-//	}
-    //Post File for the bill into the S3 bucket 
-=======
-    
-    
-    
->>>>>>> 963d2f21452f49c02a30f15f2d5ee3a2a27d6174
-  //Post File for the bill
-    @RequestMapping(value = "/v1/bill/{id}/file", method = RequestMethod.POST)
-    public ResponseEntity<FileUpload> uploadFile(@PathVariable String id,@RequestParam("file") MultipartFile attachment,
-            final HttpServletRequest request) {
 
-        /** Below data is what we saving into database */
-         Bill billById = billService.getBillById(id);
-         
-         FileUpload d=null;
-        if (attachment.isEmpty()) {
-            return new ResponseEntity<FileUpload>(HttpStatus.OK);
-        }
+	public static boolean isNullOrEmpty(String str) {
+		if (str != null && !str.isEmpty())
+			return false;
+		return true;
+	}
+
+	// Post File for the bill into the S3 bucket
+	// Post File for the bill
+	@RequestMapping(value = "/v1/bill/{id}/file", method = RequestMethod.POST)
+	public ResponseEntity<FileUpload> uploadFile(@PathVariable String id,
+			@RequestParam("file") MultipartFile attachment, final HttpServletRequest request) {
+
+		/** Below data is what we saving into database */
+		Bill billById = billService.getBillById(id);
+
+		FileUpload d = null;
+		if (attachment.isEmpty()) {
+			return new ResponseEntity<FileUpload>(HttpStatus.OK);
+		}
 //         if(!billById.getAttachment().equals(null)) {
 //             return new ResponseEntity<String>("Already a file is attached", HttpStatus.BAD_REQUEST);
 //         }
-        
-          if(!attachment.getContentType().equals("image/jpg") && !attachment.getContentType().equals("image/jpeg")
-                   &&  !attachment.getContentType().equals("application/pdf") && !attachment.getContentType().equals("image/png")){
-                        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-                    }
-          
-          if(isNullOrEmpty(billById.getAttachment())) {
-        try {
-            /** File will get saved to file system and database */
-        	d =   saveUploadedFiles(billById,Arrays.asList(attachment));
-        } catch (IOException e) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-          }
-        
-        return new ResponseEntity<FileUpload>(d,HttpStatus.OK);
 
-    }
-    
-   // private static final String UPLOADED_FOLDER = System.getProperty("user.dir")+"/src/main/resources/static/images/";
-   private static String UPLOADED_FOLDER = "/home/hemant/CSYE6225-workspace/";
-<<<<<<< HEAD
-  
-    private void saveUploadedFiles(Bill billById,List<MultipartFile> files) throws IOException {
-=======
+		if (!attachment.getContentType().equals("image/jpg") && !attachment.getContentType().equals("image/jpeg")
+				&& !attachment.getContentType().equals("application/pdf")
+				&& !attachment.getContentType().equals("image/png")) {
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		}
 
-    
-    private FileUpload saveUploadedFiles(Bill billById,List<MultipartFile> files) throws IOException {
-    	FileUpload metaData = new FileUpload();
->>>>>>> 963d2f21452f49c02a30f15f2d5ee3a2a27d6174
-        for (MultipartFile file : files) {
-            if (file.isEmpty()) {
-                continue; 
-            }
-<<<<<<< HEAD
-            byte[] bytes = file.getBytes();
-            Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
-            Files.write(path, bytes);
-            FileUpload metaData = new FileUpload();
-=======
-//            byte[] bytes = file.getBytes();
-//            Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
-//            Files.write(path, bytes);
-            
->>>>>>> 963d2f21452f49c02a30f15f2d5ee3a2a27d6174
-        
-        metaData.setFile_name(file.getOriginalFilename() + new Date().toString());
-        metaData.setUpload_date(new Date().toString());
-        String url = this.amazonClient.uploadFile(file);
-<<<<<<< HEAD
-    //    ObjectMetadata datas=this.amazonClient.getMetaData();
-      //  System.out.println("m5:"+datas.getETag()+datas.getContentType()+datas.getContentLength()+datas.getLastModified());
-=======
-       // ObjectMetadata datas=this.amazonClient.getMetaData();
-        //System.out.println("m5:"+datas.getETag()+datas.getContentType()+datas.getContentLength()+datas.getLastModified());
->>>>>>> 963d2f21452f49c02a30f15f2d5ee3a2a27d6174
-        metaData.setUrl(url);
-        metaData.setId(UUID.randomUUID().toString());
-        
-    
-         ObjectMapper mapperObj = new ObjectMapper();
-         Map<String, Object> displayFile = new HashMap<>();
+		if (isNullOrEmpty(billById.getAttachment())) {
+			try {
+				/** File will get saved to file system and database */
+				d = saveUploadedFiles(billById, Arrays.asList(attachment));
+			} catch (IOException e) {
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			}
+		}
 
-         displayFile.put("file_name", metaData.getFile_name());
-         displayFile.put("id", metaData.getId());
-         displayFile.put("url", metaData.getUrl());
-         displayFile.put("upload_date", metaData.getUpload_date());
+		return new ResponseEntity<FileUpload>(d, HttpStatus.OK);
 
-         
-         mapperObj.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS , false);
-         String jsonResp = mapperObj.writeValueAsString(displayFile);
-         System.out.println(jsonResp);
-         
-         
-         Gson gson = new Gson();
+	}
 
-         //convert java object to JSON format
-         String json = gson.toJson(jsonResp);    
-         
-         
-         billById.setAttachment(jsonResp);        
-         billService.updateBill(billById);
- 
-        fileService.addFile(metaData);
-     //   this.amazonClient.uploadFile(file);
-        //fileService.updateFiles(files);
-<<<<<<< HEAD
+	// private static final String UPLOADED_FOLDER =
+	// System.getProperty("user.dir")+"/src/main/resources/static/images/";
+	private static String UPLOADED_FOLDER = "/home/hemant/CSYE6225-workspace/";
 
-        }
-    }    
+	private FileUpload saveUploadedFiles(Bill billById, List<MultipartFile> files) throws IOException {
+		FileUpload metaData = new FileUpload();
+		for (MultipartFile file : files) {
+			if (file.isEmpty()) {
+				continue;
+			}
 
-    
-    // Get file for the bill from the S3 bucket 
-    @RequestMapping(value = "/v1/bill/{billId}/file/{fileId}", method = RequestMethod.GET)
-    public ResponseEntity<FileUpload> getFileById(@PathVariable("billId") String billId,
-            @PathVariable("fileId") String fileId) {
+			byte[] bytes = file.getBytes();
+			Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
+			Files.write(path, bytes);
 
-        if (SecurityContextHolder.getContext().getAuthentication() != null
-                && SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
-            // response.put("message", "you are not logged in!!!");
-            return new ResponseEntity<FileUpload>(HttpStatus.BAD_REQUEST);
+			metaData.setFile_name(file.getOriginalFilename() + new Date().toString());
+			metaData.setUpload_date(new Date().toString());
+			String url = this.amazonClient.uploadFile(file);
+			metaData.setUrl(url);
+			metaData.setId(UUID.randomUUID().toString());
 
-        } else {
+			ObjectMapper mapperObj = new ObjectMapper();
+			Map<String, Object> displayFile = new HashMap<>();
 
-            if (billId == null) {
-                return new ResponseEntity<FileUpload>(HttpStatus.NO_CONTENT);
-            }
+			displayFile.put("file_name", metaData.getFile_name());
+			displayFile.put("id", metaData.getId());
+			displayFile.put("url", metaData.getUrl());
+			displayFile.put("upload_date", metaData.getUpload_date());
 
-            else {
-                FileUpload file = fileService.getFileById(fileId);
-                if (file == null) {
-                    return new ResponseEntity<FileUpload>(HttpStatus.NOT_FOUND);
-                }
+			mapperObj.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+			String jsonResp = mapperObj.writeValueAsString(displayFile);
+			System.out.println(jsonResp);
 
-                return new ResponseEntity<FileUpload>(file, HttpStatus.OK);
-            }
-        }
-    }
+			Gson gson = new Gson();
 
-    //Delete the file for the bill from S3bucket    
-    @RequestMapping(value = "/v1/bill/{billId}/file/{fileId}", method = RequestMethod.DELETE)
-    public ResponseEntity<?> deleteFile1(@PathVariable("billId") String billId, @PathVariable("fileId") String fileId) throws IOException {
-        boolean isSuccess = false;
-        if (billId == null) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
+			// convert java object to JSON format
+			String json = gson.toJson(jsonResp);
 
-            if (SecurityContextHolder.getContext().getAuthentication() != null
-                    && SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
-                // response.put("message", "you are not logged in!!!");
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			billById.setAttachment(jsonResp);
+			billService.updateBill(billById);
 
-            } else {
-  
-                FileUpload file = fileService.getFileById(fileId);
+			fileService.addFile(metaData);
+			// this.amazonClient.uploadFile(file);
+			// fileService.updateFiles(files);
 
-                if (file == null) {
-                    return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-                }
-                
-                String imageUrl = file.getUrl();
-                this.amazonClient.deleteFileFromS3Bucket(imageUrl);
-
-                isSuccess = fileService.deleteFile(fileId);
-                Bill billById = billService.getBillById(billId);
-            
-                 billById.setAttachment("NULL");
-                 billService.updateBill(billById);
-                 
-                if (isSuccess)
-                    return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
-                else
-                    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
-
-    }
-
-    
-    
-=======
-
-        }
+		}
 		return metaData;
-    }    
+	}
 
-    
-// Get file for the bill from the S3 bucket 
-@RequestMapping(value = "/v1/bill/{billId}/file/{fileId}", method = RequestMethod.GET)
-public ResponseEntity<FileUpload> getFileById(@PathVariable("billId") String billId,
-        @PathVariable("fileId") String fileId) {
+	// Get file for the bill from the S3 bucket
+	@RequestMapping(value = "/v1/bill/{billId}/file/{fileId}", method = RequestMethod.GET)
+	public ResponseEntity<FileUpload> getFileById(@PathVariable("billId") String billId,
+			@PathVariable("fileId") String fileId) {
 
-    if (SecurityContextHolder.getContext().getAuthentication() != null
-            && SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
-        // response.put("message", "you are not logged in!!!");
-        return new ResponseEntity<FileUpload>(HttpStatus.BAD_REQUEST);
+		if (SecurityContextHolder.getContext().getAuthentication() != null
+				&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
+			// response.put("message", "you are not logged in!!!");
+			return new ResponseEntity<FileUpload>(HttpStatus.BAD_REQUEST);
 
-    } else {
+		} else {
 
-        if (billId == null) {
-            return new ResponseEntity<FileUpload>(HttpStatus.NO_CONTENT);
-        }
+			if (billId == null) {
+				return new ResponseEntity<FileUpload>(HttpStatus.NO_CONTENT);
+			}
 
-        else {
-            FileUpload file = fileService.getFileById(fileId);
-            if (file == null) {
-                return new ResponseEntity<FileUpload>(HttpStatus.NOT_FOUND);
-            }
+			else {
+				FileUpload file = fileService.getFileById(fileId);
+				if (file == null) {
+					return new ResponseEntity<FileUpload>(HttpStatus.NOT_FOUND);
+				}
 
-            return new ResponseEntity<FileUpload>(file, HttpStatus.OK);
-        }
-    }
-}
+				return new ResponseEntity<FileUpload>(file, HttpStatus.OK);
+			}
+		}
+	}
 
 //Delete the file for the bill from S3bucket    
-@RequestMapping(value = "/v1/bill/{billId}/file/{fileId}", method = RequestMethod.DELETE)
-public ResponseEntity<?> deleteFile1(@PathVariable("billId") String billId, @PathVariable("fileId") String fileId) throws IOException {
-    boolean isSuccess = false;
-    if (billId == null) {
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    } else {
+	@RequestMapping(value = "/v1/bill/{billId}/file/{fileId}", method = RequestMethod.DELETE)
+	public ResponseEntity<?> deleteFile(@PathVariable("billId") String billId, @PathVariable("fileId") String fileId)
+			throws IOException {
+		boolean isSuccess = false;
+		if (billId == null) {
+			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+		} else {
 
-        if (SecurityContextHolder.getContext().getAuthentication() != null
-                && SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
-            // response.put("message", "you are not logged in!!!");
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			if (SecurityContextHolder.getContext().getAuthentication() != null
+					&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
+				// response.put("message", "you are not logged in!!!");
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-        } else {
-        	
-        	Bill billById = billService.getBillById(billId);
-            FileUpload file = fileService.getFileById(fileId);
+			} else {
 
-            if (file == null) {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-            }
-            
-            String imageUrl = file.getUrl();
-            this.amazonClient.deleteFileFromS3Bucket(imageUrl);
+				Bill billById = billService.getBillById(billId);
+				FileUpload file = fileService.getFileById(fileId);
 
-            isSuccess = fileService.deleteFile(fileId);
-            
-        
-            ObjectMapper mapperObj = new ObjectMapper();
-            Map<String, Object> displayFile = new HashMap<>();
+				if (file == null) {
+					return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+				}
 
-            displayFile.put("file_name", "");
-            displayFile.put("id","");
-            displayFile.put("url", "");
-            displayFile.put("upload_date","");
+				String imageUrl = file.getUrl();
+				this.amazonClient.deleteFileFromS3Bucket(imageUrl);
 
-            
-            mapperObj.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS , false);
-            String jsonResp = mapperObj.writeValueAsString(displayFile);
-            System.out.println(jsonResp);         
-            
-            
-             billById.setAttachment(jsonResp);
-             billService.updateBill(billById);
-             
-            if (isSuccess)
-                return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
-            else
-                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+				isSuccess = fileService.deleteFile(fileId);
 
-}
+				ObjectMapper mapperObj = new ObjectMapper();
+				Map<String, Object> displayFile = new HashMap<>();
 
-    
-    
-    
-    
-//	//Post File for the bill
-//    @RequestMapping(value = "/v1/bill/{id}/file", method = RequestMethod.POST)
-//    public ResponseEntity<FileUpload> uploadFile(@PathVariable String id,@RequestParam("file") MultipartFile attachment,
-//            final HttpServletRequest request) {
-//
-//        /** Below data is what we saving into database */
-//         Bill billById = billService.getBillById(id);
-//         
-//        
-//        if (attachment.isEmpty()) {
-//            return new ResponseEntity<FileUpload>(HttpStatus.OK);
-//        }
-////         if(!billById.getAttachment().equals(null)) {
-////        	 return new ResponseEntity<String>("Already a file is attached", HttpStatus.BAD_REQUEST);
-////         }
-//        
-//          if(!attachment.getContentType().equals("image/jpg") && !attachment.getContentType().equals("image/jpeg")
-//                   &&  !attachment.getContentType().equals("application/pdf") && !attachment.getContentType().equals("image/png")){
-//                        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//                    }
-//          
-//          if(isNullOrEmpty(billById.getAttachment())) {
-//        try {
-//            /** File will get saved to file system and database */
-//            saveUploadedFiles(billById,Arrays.asList(attachment));
-//        } catch (IOException e) {
-//            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//        }
-//          }
-//        
-//        return new ResponseEntity<FileUpload>(HttpStatus.OK);
-//
-//    }
-//    
-//   // private static final String UPLOADED_FOLDER = System.getProperty("user.dir")+"/src/main/resources/static/images/";
-//   private static String UPLOADED_FOLDER = "/home/hemant/CSYE6225-workspace/";
-//
-//    
-//    private void saveUploadedFiles(Bill billById,List<MultipartFile> files) throws IOException {
-//        for (MultipartFile file : files) {
-//            if (file.isEmpty()) {
-//                continue; 
-//            }
-//            byte[] bytes = file.getBytes();
-//            Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
-//            Files.write(path, bytes);
-//            saveMetaData(billById,file);
-//
-//        }
-//    }    
-//    
-//  //  private static final String UPLOAD_FOLDER = System.getProperty("user.dir")+"/src/main/resources/static/images/";
-//
-//    private void saveMetaData(Bill billById,MultipartFile file) throws IOException {
-//                
-//          
-//        FileUpload metaData = new FileUpload();
-//        
-//        metaData.setFile_name(file.getOriginalFilename() + new Date().toString());
-//        metaData.setUpload_date(new Date().toString());
-//        metaData.setUrl(UPLOADED_FOLDER);
-//        metaData.setId(UUID.randomUUID().toString());
-//        
-//    
-//         ObjectMapper mapperObj = new ObjectMapper();
-//         Map<String, Object> displayFile = new HashMap<>();
-//
-//         displayFile.put("file_name", metaData.getFile_name());
-//         displayFile.put("id", metaData.getId());
-//         displayFile.put("url", metaData.getUrl());
-//         displayFile.put("upload_date", metaData.getUpload_date());
-//
-//         
-//         mapperObj.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS , false);
-//         String jsonResp = mapperObj.writeValueAsString(displayFile);
-//         System.out.println(jsonResp);
-//         
-//         
-//         Gson gson = new Gson();
-//
-//         //convert java object to JSON format
-//         String json = gson.toJson(jsonResp);    
-//         
-//         
-//         billById.setAttachment(jsonResp);        
-//         billService.updateBill(billById);
-// 
-//        fileService.addFile(metaData);
-//        //fileService.updateFiles(files);
-//    }
-//    
-//	// Get file for the bill
-//	@RequestMapping(value = "/v1/bill/{billId}/file/{fileId}", method = RequestMethod.GET)
-//	public ResponseEntity<FileUpload> getFileById(@PathVariable("billId") String billId,
-//			@PathVariable("fileId") String fileId) {
-//
-//		if (SecurityContextHolder.getContext().getAuthentication() != null
-//				&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
-//			// response.put("message", "you are not logged in!!!");
-//			return new ResponseEntity<FileUpload>(HttpStatus.BAD_REQUEST);
-//
-//		} else {
-//
-//			if (billId == null) {
-//				return new ResponseEntity<FileUpload>(HttpStatus.NO_CONTENT);
-//			}
-//
-//			else {
-//				FileUpload file = fileService.getFileById(fileId);
-//				if (file == null) {
-//					return new ResponseEntity<FileUpload>(HttpStatus.NOT_FOUND);
-//				}
-//
-//				return new ResponseEntity<FileUpload>(file, HttpStatus.OK);
-//			}
-//		}
-//	}
-//
-//	// DELETE the file for the bill
-//	@RequestMapping(value = "/v1/bill/{billId}/file/{fileId}", method = RequestMethod.DELETE)
-//	public ResponseEntity<?> deleteFile(@PathVariable("billId") String billId, @PathVariable("fileId") String fileId) throws IOException {
-//		boolean isSuccess = false;
-//		if (billId == null) {
-//			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//		} else {
-//
-//			if (SecurityContextHolder.getContext().getAuthentication() != null
-//					&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
-//				// response.put("message", "you are not logged in!!!");
-//				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-//
-//			} else {
-//				FileUpload file = fileService.getFileById(fileId);
-//
-//				if (file == null) {
-//					return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//				}
-//		        
-//		        Path fileToDeletePath = Paths.get(UPLOADED_FOLDER + file.getFile_name());
-//		        Files.delete(fileToDeletePath);
-//		        
-//		        isSuccess = fileService.deleteFile(fileId);
-//		        Bill billById = billService.getBillById(billId);
-//		    
-//		         billById.setAttachment("NULL");
-//		         billService.updateBill(billById);
-//		         
-//		         
-//		       
-//	
-//				if (isSuccess)
-//					return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
-//				else
-//					return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-//			}
-//		}
-//
-//	}
->>>>>>> 963d2f21452f49c02a30f15f2d5ee3a2a27d6174
+				displayFile.put("file_name", "");
+				displayFile.put("id", "");
+				displayFile.put("url", "");
+				displayFile.put("upload_date", "");
+
+				mapperObj.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+				String jsonResp = mapperObj.writeValueAsString(displayFile);
+				System.out.println(jsonResp);
+
+				billById.setAttachment(jsonResp);
+				billService.updateBill(billById);
+
+				if (isSuccess)
+					return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
+				else
+					return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+			}
+		}
+
+	}
 
 }
