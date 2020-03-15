@@ -218,7 +218,7 @@ public class BillController {
 				if (bill == null) {
 					return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 				}
-
+				
 				this.amazonClient.deleteFileFromS3Bucket(imageUrl);
 	            fileService.deleteFile(fileId);
 	        	isSuccess = billService.deleteBillById(billId);
