@@ -306,10 +306,10 @@ public class BillController {
 			if (file.isEmpty()) {
 				continue;
 			}
-
-			byte[] bytes = file.getBytes();
-			Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
-			Files.write(path, bytes);
+//
+//			byte[] bytes = file.getBytes();
+//			Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
+//			Files.write(path, bytes);
 
 			metaData.setFile_name(file.getOriginalFilename() + new Date().toString());
 			metaData.setUpload_date(new Date().toString());
