@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
@@ -59,6 +60,7 @@ import com.cloud.csye6225.assignment.util.EmailValidationUtilImpl;
 import com.cloud.csye6225.assignment.util.PasswordUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.common.base.Stopwatch;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.timgroup.statsd.StatsDClient;
@@ -92,12 +94,11 @@ public class BillController {
 	BillController() {
 		this.amazonClient = new AmazonClient();
 	}
-	
-	 @Autowired
-	 private StatsDClient statsDClient;
 
-	 private final static Logger logger = LoggerFactory.getLogger(BillController.class);
-	
+	@Autowired
+	private StatsDClient statsDClient;
+
+	private final static Logger logger = LoggerFactory.getLogger(BillController.class);
 
 	@PostMapping("/v1/bill/fileupload")
 	public String uploadFile(@RequestPart(value = "file") MultipartFile file) {
@@ -115,7 +116,8 @@ public class BillController {
 	@ResponseBody
 	public ResponseEntity<Bill> registerPost(@RequestBody String bill) {
 		statsDClient.incrementCounter("endpoint.v1.bill.api.post");
-		
+		Stopwatch stopwatch = Stopwatch.createStarted();
+
 		logger.info("Add new bill to the user");
 
 		if (SecurityContextHolder.getContext().getAuthentication() != null
@@ -134,6 +136,9 @@ public class BillController {
 			billObj.setOwner_id(account.getId());
 
 			billService.addBill(billObj);
+			stopwatch.stop();
+			// send the recorded time to statsd
+			statsDClient.recordExecutionTime("timer.v1.bill.api.post", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 			return new ResponseEntity<>(billObj, HttpStatus.OK);
 		}
 	}
@@ -145,6 +150,7 @@ public class BillController {
 
 		statsDClient.incrementCounter("endpoint.v1.bills.api.get");
 		logger.info("Get all bills for the user");
+		Stopwatch stopwatch = Stopwatch.createStarted();
 
 		Collection<Bill> bills1 = null;
 		// check whether user logged in using the basic auth credentials or not
@@ -160,6 +166,9 @@ public class BillController {
 			Collection<Bill> bills = billService.getAllBill();
 
 			bills1 = bills.stream().filter(p -> p.getOwner_id().equals(account.getId())).collect(Collectors.toList());
+			stopwatch.stop();
+			// send the recorded time to statsd
+			statsDClient.recordExecutionTime("timer.v1.bills.api.get", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 			return new ResponseEntity<Collection<Bill>>(bills1, HttpStatus.OK);
 
 		}
@@ -175,6 +184,7 @@ public class BillController {
 
 		statsDClient.incrementCounter("endpoint.v1.bill.id.api.get");
 		logger.info("Get a single bill for the user");
+		Stopwatch stopwatch = Stopwatch.createStarted();
 		if (SecurityContextHolder.getContext().getAuthentication() != null
 				&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
 			// response.put("message", "you are not logged in!!!");
@@ -194,6 +204,10 @@ public class BillController {
 					return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 				}
 
+				stopwatch.stop();
+				// send the recorded time to statsd
+				statsDClient.recordExecutionTime("timer.v1.bill.id.api.get", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
 				return new ResponseEntity<>(bill, HttpStatus.OK);
 			}
 		}
@@ -207,6 +221,7 @@ public class BillController {
 
 		statsDClient.incrementCounter("endpoint.v1.bill.id.api.delete");
 		logger.info("Delete a single bill for the user");
+		Stopwatch stopwatch = Stopwatch.createStarted();
 		boolean isSuccess = false;
 		if (billId == null) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -237,10 +252,16 @@ public class BillController {
 				fileService.deleteFile(fileId);
 				isSuccess = billService.deleteBillById(billId);
 
-				if (isSuccess)
+				if (isSuccess) {
+					stopwatch.stop();
+					// send the recorded time to statsd
+					statsDClient.recordExecutionTime("timer.v1.bill.id.api.delete",
+							stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
 					return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
-				else
+				} else {
 					return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+				}
 			}
 		}
 	}
@@ -252,6 +273,7 @@ public class BillController {
 
 		statsDClient.incrementCounter("endpoint.v1.bill.id.api.put");
 		logger.info("Put a single bill for the user");
+		Stopwatch stopwatch = Stopwatch.createStarted();
 		Bill bill = billService.getBillById(billId);
 		if (SecurityContextHolder.getContext().getAuthentication() != null
 				&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
@@ -267,6 +289,9 @@ public class BillController {
 			bill.setDue_date(infos.getDue_date());
 
 			billService.updateBill(bill);
+			stopwatch.stop();
+			// send the recorded time to statsd
+			statsDClient.recordExecutionTime("timer.v1.bill.id.api.put", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 			return new ResponseEntity<Bill>(bill, HttpStatus.OK);
 		}
 	}
@@ -285,6 +310,7 @@ public class BillController {
 
 		statsDClient.incrementCounter("endpoint.v1.bill.id.file.api.post");
 		logger.info("Post a file for a single bill for the user");
+		Stopwatch stopwatch = Stopwatch.createStarted();
 		/** Below data is what we saving into database */
 		Bill billById = billService.getBillById(id);
 
@@ -311,6 +337,9 @@ public class BillController {
 			}
 		}
 
+		stopwatch.stop();
+		// send the recorded time to statsd
+		statsDClient.recordExecutionTime("timerS3Post.v1.bill.id.file.api.post", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 		return new ResponseEntity<FileUpload>(d, HttpStatus.OK);
 
 	}
@@ -369,9 +398,9 @@ public class BillController {
 	public ResponseEntity<FileUpload> getFileById(@PathVariable("billId") String billId,
 			@PathVariable("fileId") String fileId) {
 
-
 		statsDClient.incrementCounter("endpoint.v1.bill.billId.file.fileId.api.get");
 		logger.info("Get a file for a single bill for the user");
+		Stopwatch stopwatch = Stopwatch.createStarted();
 		if (SecurityContextHolder.getContext().getAuthentication() != null
 				&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
 			// response.put("message", "you are not logged in!!!");
@@ -389,6 +418,11 @@ public class BillController {
 					return new ResponseEntity<FileUpload>(HttpStatus.NOT_FOUND);
 				}
 
+				stopwatch.stop();
+				// send the recorded time to statsd
+				statsDClient.recordExecutionTime("timerS3Get.v1.bill.billId.file.fileId.api.get",
+						stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
 				return new ResponseEntity<FileUpload>(file, HttpStatus.OK);
 			}
 		}
@@ -398,10 +432,10 @@ public class BillController {
 	@RequestMapping(value = "/v1/bill/{billId}/file/{fileId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteFile(@PathVariable("billId") String billId, @PathVariable("fileId") String fileId)
 			throws IOException {
-		
 
 		statsDClient.incrementCounter("endpoint.v1.bill.billId.file.fileId.api.delete");
 		logger.info("Delete a file for a single bill for the user");
+		Stopwatch stopwatch = Stopwatch.createStarted();
 		boolean isSuccess = false;
 		if (billId == null) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -441,10 +475,15 @@ public class BillController {
 				billById.setAttachment(jsonResp);
 				billService.updateBill(billById);
 
-				if (isSuccess)
+				if (isSuccess) {
+					stopwatch.stop();
+					// send the recorded time to statsd
+					statsDClient.recordExecutionTime("timerS3Delete.v1.bill.billId.file.fileId.api.delete",
+							stopwatch.elapsed(TimeUnit.MILLISECONDS));
 					return new ResponseEntity<>("Deleted successfully", HttpStatus.OK);
-				else
+				} else {
 					return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+				}
 			}
 		}
 

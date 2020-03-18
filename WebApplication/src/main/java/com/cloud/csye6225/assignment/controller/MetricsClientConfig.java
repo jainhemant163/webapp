@@ -1,6 +1,5 @@
 package com.cloud.csye6225.assignment.controller;
 
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
