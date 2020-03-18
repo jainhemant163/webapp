@@ -9,6 +9,7 @@ import com.cloud.csye6225.assignment.entity.UserAccountResponse;
 import com.cloud.csye6225.assignment.service.UserAccountService;
 import com.cloud.csye6225.assignment.util.EmailValidationUtil;
 import com.cloud.csye6225.assignment.util.PasswordUtilImpl;
+import com.google.common.base.Stopwatch;
 import com.timgroup.statsd.StatsDClient;
 import com.cloud.csye6225.assignment.service.UserAccountService;
 import com.cloud.csye6225.assignment.util.EmailValidationUtilImpl;
@@ -35,6 +36,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 /**
  * @author jainh
  *
@@ -65,7 +67,8 @@ public class UserController {
     @ResponseBody
     public ResponseEntity<?> welcome() {
     	 statsDClient.incrementCounter("endpoint.api.get");
-
+    	Stopwatch stopwatch = Stopwatch.createStarted();
+ 		    	 
         HashMap<String, String> response = new HashMap<>();
 
         if (SecurityContextHolder.getContext().getAuthentication() != null
@@ -76,6 +79,9 @@ public class UserController {
             response.put("message", "you are logged in. current time is " + new Date().toString());
         }
 
+        stopwatch.stop();
+ 		// send the recorded time to statsd
+ 		statsDClient.recordExecutionTime("timer.api.get", stopwatch.elapsed(TimeUnit.MILLISECONDS));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -119,6 +125,7 @@ public class UserController {
     public ResponseEntity<UserAccountResponse> getAccountByEmail(){
 
     	  statsDClient.incrementCounter("endpoint.v1.user.self.api.get");
+    	  Stopwatch stopwatch = Stopwatch.createStarted();
     	  logger.info("user details");
     	 if (SecurityContextHolder.getContext().getAuthentication() != null
                  && SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
@@ -136,6 +143,9 @@ public class UserController {
         response.setAccount_created(account.getUser_created());
         response.setAccount_updated(account.getUser_update());
 
+        stopwatch.stop();
+ 		// send the recorded time to statsd
+ 		statsDClient.recordExecutionTime("timer.api.get", stopwatch.elapsed(TimeUnit.MILLISECONDS));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
     }
