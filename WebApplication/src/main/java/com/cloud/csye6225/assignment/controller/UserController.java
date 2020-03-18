@@ -85,6 +85,7 @@ public class UserController {
     	  statsDClient.incrementCounter("endpoint.v1.users.api.get");
     	  logger.info("Get all Users");
     	
+    	
     	  if (SecurityContextHolder.getContext().getAuthentication() != null
                   && SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
  		  
