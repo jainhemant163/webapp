@@ -8,7 +8,7 @@
             "files": {
                 "collect_list": [
                     {
-                        "file_path": "/home/ubuntu/webapp/logs/WebApp.log",
+                        "file_path": "/home/ubuntu/output.log",
                         "log_group_name": "csye6225_spring2020",
                         "log_stream_name": "webapp"
                     }
