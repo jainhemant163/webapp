@@ -116,10 +116,6 @@ public class BillController {
 	public ResponseEntity<Bill> registerPost(@RequestBody String bill) {
 		statsDClient.incrementCounter("endpoint.v1.bill.api.post");
 		
-		
-		
-		
-		statsDClient.time(aspect, value);
 		logger.info("Add new bill to the user");
 
 		if (SecurityContextHolder.getContext().getAuthentication() != null
