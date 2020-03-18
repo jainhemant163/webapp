@@ -24,6 +24,8 @@ import java.util.stream.Collectors;
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -59,6 +61,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.timgroup.statsd.StatsDClient;
 
 /**
  * @author jainh
@@ -89,6 +92,12 @@ public class BillController {
 	BillController() {
 		this.amazonClient = new AmazonClient();
 	}
+	
+	 @Autowired
+	 private StatsDClient statsDClient;
+
+	 private final static Logger logger = LoggerFactory.getLogger(BillController.class);
+	
 
 	@PostMapping("/v1/bill/fileupload")
 	public String uploadFile(@RequestPart(value = "file") MultipartFile file) {
@@ -105,6 +114,13 @@ public class BillController {
 	@RequestMapping(value = "/v1/bill", method = RequestMethod.POST, consumes = APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<Bill> registerPost(@RequestBody String bill) {
+		statsDClient.incrementCounter("endpoint.v1.bill.api.post");
+		
+		
+		
+		
+		statsDClient.time(aspect, value);
+		logger.info("Add new bill to the user");
 
 		if (SecurityContextHolder.getContext().getAuthentication() != null
 				&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
@@ -130,8 +146,9 @@ public class BillController {
 	@RequestMapping(value = "/v1/bills", method = RequestMethod.GET, consumes = APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<Collection<Bill>> registerGet() {
-//      if() return null;// log in or not
-		// get user id after log in
+
+		statsDClient.incrementCounter("endpoint.v1.bills.api.get");
+		logger.info("Get all bills for the user");
 
 		Collection<Bill> bills1 = null;
 		// check whether user logged in using the basic auth credentials or not
@@ -160,6 +177,8 @@ public class BillController {
 //        if() return null;// log in or not
 		// get user id after log in
 
+		statsDClient.incrementCounter("endpoint.v1.bill.id.api.get");
+		logger.info("Get a single bill for the user");
 		if (SecurityContextHolder.getContext().getAuthentication() != null
 				&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
 			// response.put("message", "you are not logged in!!!");
@@ -190,6 +209,8 @@ public class BillController {
 	@ResponseBody
 	public ResponseEntity<?> deleteBillById(@PathVariable("id") String billId) {
 
+		statsDClient.incrementCounter("endpoint.v1.bill.id.api.delete");
+		logger.info("Delete a single bill for the user");
 		boolean isSuccess = false;
 		if (billId == null) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -232,9 +253,9 @@ public class BillController {
 	@RequestMapping(value = "/v1/bill/{id}", method = RequestMethod.PUT, consumes = APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public ResponseEntity<Bill> updateBill(@PathVariable("id") String billId, @RequestBody Bill infos) {
-//        if() return null;// log in or not
-		// get user id after log in
 
+		statsDClient.incrementCounter("endpoint.v1.bill.id.api.put");
+		logger.info("Put a single bill for the user");
 		Bill bill = billService.getBillById(billId);
 		if (SecurityContextHolder.getContext().getAuthentication() != null
 				&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
@@ -266,6 +287,8 @@ public class BillController {
 	public ResponseEntity<FileUpload> uploadFile(@PathVariable String id,
 			@RequestParam("file") MultipartFile attachment, final HttpServletRequest request) {
 
+		statsDClient.incrementCounter("endpoint.v1.bill.id.file.api.post");
+		logger.info("Post a file for a single bill for the user");
 		/** Below data is what we saving into database */
 		Bill billById = billService.getBillById(id);
 
@@ -350,6 +373,9 @@ public class BillController {
 	public ResponseEntity<FileUpload> getFileById(@PathVariable("billId") String billId,
 			@PathVariable("fileId") String fileId) {
 
+
+		statsDClient.incrementCounter("endpoint.v1.bill.billId.file.fileId.api.get");
+		logger.info("Get a file for a single bill for the user");
 		if (SecurityContextHolder.getContext().getAuthentication() != null
 				&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
 			// response.put("message", "you are not logged in!!!");
@@ -376,6 +402,10 @@ public class BillController {
 	@RequestMapping(value = "/v1/bill/{billId}/file/{fileId}", method = RequestMethod.DELETE)
 	public ResponseEntity<?> deleteFile(@PathVariable("billId") String billId, @PathVariable("fileId") String fileId)
 			throws IOException {
+		
+
+		statsDClient.incrementCounter("endpoint.v1.bill.billId.file.fileId.api.delete");
+		logger.info("Delete a file for a single bill for the user");
 		boolean isSuccess = false;
 		if (billId == null) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);

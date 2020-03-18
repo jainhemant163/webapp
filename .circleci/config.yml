@@ -41,6 +41,7 @@ jobs:
             cp ../WebApplication/src/main/resources/*.properties .
             cp ../codedeploy/*.sh .
             cp ../*.yml .
+            cp ../cloudwatchconfig.json .
             zip -r csye6225-web-app-${CIRCLE_BUILD_NUM}.zip .
             rm *.yml *.sh *.properties *.jar
             ls -al

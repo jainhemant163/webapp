@@ -9,9 +9,12 @@ import com.cloud.csye6225.assignment.entity.UserAccountResponse;
 import com.cloud.csye6225.assignment.service.UserAccountService;
 import com.cloud.csye6225.assignment.util.EmailValidationUtil;
 import com.cloud.csye6225.assignment.util.PasswordUtilImpl;
+import com.timgroup.statsd.StatsDClient;
 import com.cloud.csye6225.assignment.service.UserAccountService;
 import com.cloud.csye6225.assignment.util.EmailValidationUtilImpl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -52,10 +55,16 @@ public class UserController {
 
     @Autowired
     PasswordUtilImpl passwordUtil;
+    
+    @Autowired
+    private StatsDClient statsDClient;
 
+    private final static Logger logger = LoggerFactory.getLogger(UserController.class);
+    
     @RequestMapping(value = "/", method = RequestMethod.GET, produces = "application/json")
     @ResponseBody
     public ResponseEntity<?> welcome() {
+    	 statsDClient.incrementCounter("endpoint.api.get");
 
         HashMap<String, String> response = new HashMap<>();
 
@@ -73,7 +82,8 @@ public class UserController {
     @RequestMapping(value = "/v1/users", method = RequestMethod.GET)
     public ResponseEntity<Collection<UserAccountResponse>> getAllAccounts(){
 
-    	
+    	  statsDClient.incrementCounter("endpoint.v1.users.api.get");
+    	  logger.info("Get all Users");
     	
     	  if (SecurityContextHolder.getContext().getAuthentication() != null
                   && SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
@@ -107,7 +117,8 @@ public class UserController {
     @RequestMapping(value = "/v1/user/self", method = RequestMethod.GET)
     public ResponseEntity<UserAccountResponse> getAccountByEmail(){
 
-    	
+    	  statsDClient.incrementCounter("endpoint.v1.user.self.api.get");
+    	  logger.info("user details");
     	 if (SecurityContextHolder.getContext().getAuthentication() != null
                  && SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
 		  
@@ -131,6 +142,8 @@ public class UserController {
     @RequestMapping(value = "/v1/user/self", method = RequestMethod.PUT,consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateAccount(@RequestBody UserAccount account){
     	
+  	  statsDClient.incrementCounter("endpoint.v1.user.self.api.put");
+  	 logger.info("user details modify");
     	 if (SecurityContextHolder.getContext().getAuthentication() != null
                  && SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
 		  
@@ -173,6 +186,8 @@ public class UserController {
     @ResponseBody
     public ResponseEntity<?> registerPost(@RequestBody String jsonUser) {
        
+    	  statsDClient.incrementCounter("endpoint.v1.user.api.post");
+    	  logger.info("new user register");
     	 if (SecurityContextHolder.getContext().getAuthentication() != null
                  && SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
 		  
