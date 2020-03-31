@@ -612,8 +612,8 @@ public class BillController {
 			stopwatch.stop();
 			statsDClient.recordExecutionTime("get.bills.api.call", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 			AmazonSNS snsClient = AmazonSNSClientBuilder.defaultClient();
-			String demo = "demo";
-			final PublishRequest publishRequest = new PublishRequest(topicArn, allBills.toString());
+			String demo = "jain.he@husky.neu.edu";
+			final PublishRequest publishRequest = new PublishRequest(topicArn, demo);
 			final PublishResult publishResponse = snsClient.publish(publishRequest);
 			return new ResponseEntity<List<Map<String, Object>>>(allBills, HttpStatus.OK);
 		}
