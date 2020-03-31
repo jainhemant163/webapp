@@ -11,6 +11,8 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -47,7 +50,19 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.amazonaws.auth.AWSCredentialsProvider;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.auth.InstanceProfileCredentialsProvider;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.sns.AmazonSNS;
+import com.amazonaws.services.sns.AmazonSNSClient;
+import com.amazonaws.services.sns.AmazonSNSClientBuilder;
+import com.amazonaws.services.sns.model.PublishRequest;
+import com.amazonaws.services.sns.model.PublishResult;
+import com.amazonaws.services.sqs.AmazonSQS;
+import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
+import com.amazonaws.services.sqs.model.SendMessageResult;
 import com.cloud.csye6225.assignment.entity.Bill;
 import com.cloud.csye6225.assignment.entity.FileUpload;
 import com.cloud.csye6225.assignment.entity.UserAccount;
@@ -58,6 +73,9 @@ import com.cloud.csye6225.assignment.service.FileService;
 import com.cloud.csye6225.assignment.service.UserAccountService;
 import com.cloud.csye6225.assignment.util.EmailValidationUtilImpl;
 import com.cloud.csye6225.assignment.util.PasswordUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.base.Stopwatch;
@@ -97,6 +115,15 @@ public class BillController {
 
 	@Autowired
 	private StatsDClient statsDClient;
+
+	@Value("${ARN}")
+	private String topicArn;
+
+	@Value("${accessKey}")
+	private String accessKey;
+
+	@Value("${secretKey}")
+	private String secretKey;
 
 	private final static Logger logger = LoggerFactory.getLogger(BillController.class);
 
@@ -339,7 +366,8 @@ public class BillController {
 
 		stopwatch.stop();
 		// send the recorded time to statsd
-		statsDClient.recordExecutionTime("timerS3Post.v1.bill.id.file.api.post", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+		statsDClient.recordExecutionTime("timerS3Post.v1.bill.id.file.api.post",
+				stopwatch.elapsed(TimeUnit.MILLISECONDS));
 		return new ResponseEntity<FileUpload>(d, HttpStatus.OK);
 
 	}
@@ -487,6 +515,106 @@ public class BillController {
 			}
 		}
 
+	}
+	
+
+	////// Get the Due Bills to the corresponding email id
+
+	@RequestMapping(value = "/v1/bills/due/{x}", method = RequestMethod.GET, consumes = APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<List<Map<String, Object>>> getAllBillsByDue(@PathVariable("x") String x) throws ParseException, JsonMappingException, JsonProcessingException {
+
+		Stopwatch stopwatch = Stopwatch.createStarted();
+
+		AWSCredentialsProvider awsCredentialsProvider = new AWSStaticCredentialsProvider(
+				new BasicAWSCredentials(this.accessKey, this.secretKey));
+
+	//	AmazonSQS amazonSQS = AmazonSQSClientBuilder.standard().withCredentials(awsCredentialsProvider).build();
+		logger.info("Sending SQS message ");
+	//	SendMessageResult result = amazonSQS.sendMessage(this.sqsURL, "Bills that are due in : " + x + " days");
+	//	logger.info("SQS Message ID: " + result.getMessageId());
+
+		logger.info("Fetching all bills by due date");
+		statsDClient.incrementCounter("GET /v1/bills/due/x");
+
+		Collection<Bill> bills = null;
+		// check whether user logged in using the basic auth credentials or not
+		if (SecurityContextHolder.getContext().getAuthentication() != null
+				&& SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken) {
+			// response.put("message", "you are not logged in!!!");
+			return new ResponseEntity<List<Map<String, Object>>>(HttpStatus.BAD_REQUEST);
+
+		} else {
+
+			UserAccount account = accountService.currentUser;
+
+			Collection<Bill> bills1 = billService.getAllBill();
+
+			bills = bills1.stream().filter(p -> p.getOwner_id().equals(account.getId())).collect(Collectors.toList());
+
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        Users users = userRepository.findByEmailAddress(authentication.getName());
+//
+//        List<Bill> bills = billRepo.findBillsByOwnerId(users.getId());
+//        
+
+			List<Map<String, Object>> allBills = new ArrayList<>();
+
+			for (Bill billById : bills) {
+				Date today = new Date();
+				SimpleDateFormat myFormat = new SimpleDateFormat("dd MM yyyy");
+
+				Date dateAfter = new SimpleDateFormat("dd/MM/yyyy").parse(billById.getDue_date());
+				// Date dateAfter = billById.getDue_date();
+
+				long difference = dateAfter.getTime() - today.getTime();
+				float daysBetween = (difference / (1000 * 60 * 60 * 24));
+				if (difference == Integer.parseInt(x)) {
+					Map<String, Object> newBill = new HashMap<>();
+					newBill.put("id", billById.getId());
+					newBill.put("created_ts", billById.getCreated_ts());
+					newBill.put("updated_ts", billById.getUpdated_ts());
+					newBill.put("owner_id", billById.getOwner_id());
+					newBill.put("vendor", billById.getVendor());
+					newBill.put("bill_date", (String.valueOf(billById.getBill_date()).substring(0, 10)));
+					newBill.put("due_date", (String.valueOf(billById.getDue_date()).substring(0, 10)));
+					newBill.put("amount_due", billById.getAmount_due());
+					newBill.put("categories", billById.getCategories());
+					newBill.put("paymentStatus", billById.getPaymentStatus());
+
+					if (!(billById.getAttachment() == null) && !billById.getAttachment().equals("")) {
+						ObjectMapper mapper = new ObjectMapper();
+						JsonNode actualObj = mapper.readTree(billById.getAttachment());
+						newBill.put("attachment", actualObj);
+					} else {
+						newBill.put("attachment", "");
+					}
+
+//                List<String> allCategories = new ArrayList<>();
+//                if (billById.getCategories().contains(",")) {
+//                    for (String category : billById.getCategories().split(",")) {
+//                        allCategories.add(category);
+//                    }
+//                } else
+//                    allCategories.add(billById.getCategories());
+//                newBill.put("categories", allCategories);
+//                newBill.put("paymentStatus", billById.getPaymentStatus());
+					Stopwatch stopwatch1 = Stopwatch.createStarted();
+					allBills.add(newBill);
+					stopwatch1.stop();
+					statsDClient.recordExecutionTime("get.bills.api.call.dbquery",
+							stopwatch1.elapsed(TimeUnit.MILLISECONDS));
+				}
+
+			}
+			stopwatch.stop();
+			statsDClient.recordExecutionTime("get.bills.api.call", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+			AmazonSNS snsClient = AmazonSNSClientBuilder.defaultClient();
+			String demo = "demo";
+			final PublishRequest publishRequest = new PublishRequest(topicArn, allBills.toString());
+			final PublishResult publishResponse = snsClient.publish(publishRequest);
+			return new ResponseEntity<List<Map<String, Object>>>(allBills, HttpStatus.OK);
+		}
 	}
 
 }
