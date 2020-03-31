@@ -524,6 +524,7 @@ public class BillController {
 	@ResponseBody
 	public ResponseEntity<List<Map<String, Object>>> getAllBillsByDue(@PathVariable("x") String x) throws ParseException, JsonMappingException, JsonProcessingException {
 
+		
 		Stopwatch stopwatch = Stopwatch.createStarted();
 
 		AWSCredentialsProvider awsCredentialsProvider = new AWSStaticCredentialsProvider(
@@ -571,7 +572,8 @@ public class BillController {
 				System.out.println("Difference"+ difference);
 				float daysBetween = (difference / (1000 * 60 * 60 * 24));
 				
-				if (difference == Integer.parseInt(x)) {
+				System.out.println("Days in Between "+ daysBetween);
+				if (daysBetween == Integer.parseInt(x)) {
 					Map<String, Object> newBill = new HashMap<>();
 					newBill.put("id", billById.getId());
 					newBill.put("created_ts", billById.getCreated_ts());
@@ -612,7 +614,8 @@ public class BillController {
 			stopwatch.stop();
 			statsDClient.recordExecutionTime("get.bills.api.call", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 			AmazonSNS snsClient = AmazonSNSClientBuilder.defaultClient();
-			String demo = "jain.he@husky.neu.edu";
+			
+			String demo = account.getEmail();
 			final PublishRequest publishRequest = new PublishRequest(topicArn, demo);
 			final PublishResult publishResponse = snsClient.publish(publishRequest);
 			return new ResponseEntity<List<Map<String, Object>>>(allBills, HttpStatus.OK);
