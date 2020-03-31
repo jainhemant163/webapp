@@ -562,14 +562,16 @@ public class BillController {
 
 			for (Bill billById : bills) {
 				Date today = new Date();
-				SimpleDateFormat myFormat = new SimpleDateFormat("dd MM yyyy");
+				SimpleDateFormat myFormat = new SimpleDateFormat("yyyy-MM-dd");
 
-				Date dateAfter = new SimpleDateFormat("dd MM yyyy").parse(billById.getDue_date());
+				Date dateAfter = new SimpleDateFormat("yyyy-MM-dd").parse(billById.getDue_date());
 				// Date dateAfter = billById.getDue_date();
 
 				long difference = dateAfter.getTime() - today.getTime();
+				System.out.println("Difference"+ difference);
 				float daysBetween = (difference / (1000 * 60 * 60 * 24));
-				if (difference == Integer.parseInt(x)) {
+				
+				if (difference <= Integer.parseInt(x)) {
 					Map<String, Object> newBill = new HashMap<>();
 					newBill.put("id", billById.getId());
 					newBill.put("created_ts", billById.getCreated_ts());
