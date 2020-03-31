@@ -564,7 +564,7 @@ public class BillController {
 				Date today = new Date();
 				SimpleDateFormat myFormat = new SimpleDateFormat("dd MM yyyy");
 
-				Date dateAfter = new SimpleDateFormat("dd/MM/yyyy").parse(billById.getDue_date());
+				Date dateAfter = new SimpleDateFormat("dd MM yyyy").parse(billById.getDue_date());
 				// Date dateAfter = billById.getDue_date();
 
 				long difference = dateAfter.getTime() - today.getTime();
