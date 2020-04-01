@@ -516,15 +516,14 @@ public class BillController {
 		}
 
 	}
-	
 
 	////// Get the Due Bills to the corresponding email id
 
 	@RequestMapping(value = "/v1/bills/due/{x}", method = RequestMethod.GET, consumes = APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public ResponseEntity<List<Map<String, Object>>> getAllBillsByDue(@PathVariable("x") String x) throws ParseException, JsonMappingException, JsonProcessingException {
+	public ResponseEntity<List<Map<String, Object>>> getAllBillsByDue(@PathVariable("x") String x)
+			throws ParseException, JsonMappingException, JsonProcessingException {
 
-		
 		Stopwatch stopwatch = Stopwatch.createStarted();
 
 		AWSCredentialsProvider awsCredentialsProvider = new AWSStaticCredentialsProvider(
@@ -532,7 +531,7 @@ public class BillController {
 
 		AmazonSQS amazonSQS = AmazonSQSClientBuilder.standard().withCredentials(awsCredentialsProvider).build();
 		logger.info("Sending SQS message ");
-		String sqsURL="https://sqs.us-east-1.amazonaws.com/524398358661/SampleQueue";
+		String sqsURL = "https://sqs.us-east-1.amazonaws.com/524398358661/SampleQueue";
 		SendMessageResult result = amazonSQS.sendMessage(sqsURL, "Bills that are due in : " + x + " days");
 		logger.info("SQS Message ID: " + result.getMessageId());
 
@@ -570,10 +569,10 @@ public class BillController {
 				// Date dateAfter = billById.getDue_date();
 
 				long difference = dateAfter.getTime() - today.getTime();
-				System.out.println("Difference"+ difference);
+				System.out.println("Difference" + difference);
 				float daysBetween = (difference / (1000 * 60 * 60 * 24));
-				
-				System.out.println("Days in Between "+ daysBetween);
+
+				System.out.println("Days in Between " + daysBetween);
 				if (daysBetween == Integer.parseInt(x)) {
 					Map<String, Object> newBill = new HashMap<>();
 					newBill.put("id", billById.getId());
@@ -615,25 +614,24 @@ public class BillController {
 			stopwatch.stop();
 			statsDClient.recordExecutionTime("get.bills.api.call", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 			AmazonSNS snsClient = AmazonSNSClientBuilder.defaultClient();
-			
+
 //			String demo = account.getEmail();
 //			final PublishRequest publishRequest = new PublishRequest(topicArn, demo);
-			
-			//Testing code for all bills to publish
-			Collection<String> ids = bills.stream()
-                    .map(Bill::getId).collect(Collectors.toList());
 
-            System.out.println(ids);
-			
-             String b = ids.toString();
-             final PublishRequest publishRequest = new PublishRequest(topicArn, b);
-             logger.info("ALL the users Bills are " + b);
-             SendMessageResult result1 = amazonSQS.sendMessage(sqsURL,b);
-             logger.info("SQS Message1 ID:                  " + result1.getMessageId());
-			
-			
+			// Testing code for all bills to publish
+			Collection<String> ids = bills.stream().map(Bill::getId).collect(Collectors.toList());
+
+			System.out.println(ids);
+
+			String email = account.getEmail();
+			String b = email + "," + ids.toString();
+			final PublishRequest publishRequest = new PublishRequest(topicArn, b);
+			logger.info("ALL the users Bills are " + b);
+			SendMessageResult result1 = amazonSQS.sendMessage(sqsURL, b);
+			logger.info("SQS Message1 ID:                  " + result1.getMessageId());
+
 			//////////////
-			
+
 			final PublishResult publishResponse = snsClient.publish(publishRequest);
 			return new ResponseEntity<List<Map<String, Object>>>(allBills, HttpStatus.OK);
 		}
