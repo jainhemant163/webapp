@@ -616,8 +616,19 @@ public class BillController {
 			statsDClient.recordExecutionTime("get.bills.api.call", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 			AmazonSNS snsClient = AmazonSNSClientBuilder.defaultClient();
 			
-			String demo = account.getEmail();
-			final PublishRequest publishRequest = new PublishRequest(topicArn, demo);
+//			String demo = account.getEmail();
+//			final PublishRequest publishRequest = new PublishRequest(topicArn, demo);
+			
+			//Testing code for all bills to publish
+             String b = bills.toString();
+             final PublishRequest publishRequest = new PublishRequest(topicArn, b);
+             logger.info("ALL the users Bills are " + b);
+             SendMessageResult result1 = amazonSQS.sendMessage(sqsURL,b);
+             logger.info("SQS Message1 ID:                  " + result1.getMessageId());
+			
+			
+			//////////////
+			
 			final PublishResult publishResponse = snsClient.publish(publishRequest);
 			return new ResponseEntity<List<Map<String, Object>>>(allBills, HttpStatus.OK);
 		}
