@@ -530,10 +530,11 @@ public class BillController {
 		AWSCredentialsProvider awsCredentialsProvider = new AWSStaticCredentialsProvider(
 				new BasicAWSCredentials(this.accessKey, this.secretKey));
 
-	//	AmazonSQS amazonSQS = AmazonSQSClientBuilder.standard().withCredentials(awsCredentialsProvider).build();
+		AmazonSQS amazonSQS = AmazonSQSClientBuilder.standard().withCredentials(awsCredentialsProvider).build();
 		logger.info("Sending SQS message ");
-	//	SendMessageResult result = amazonSQS.sendMessage(this.sqsURL, "Bills that are due in : " + x + " days");
-	//	logger.info("SQS Message ID: " + result.getMessageId());
+		String sqsURL="https://sqs.us-east-1.amazonaws.com/524398358661/SampleQueue";
+		SendMessageResult result = amazonSQS.sendMessage(sqsURL, "Bills that are due in : " + x + " days");
+		logger.info("SQS Message ID: " + result.getMessageId());
 
 		logger.info("Fetching all bills by due date");
 		statsDClient.incrementCounter("GET /v1/bills/due/x");
