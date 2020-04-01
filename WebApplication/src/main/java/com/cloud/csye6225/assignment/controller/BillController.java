@@ -626,19 +626,16 @@ public class BillController {
 			                         .map(Bill::getId).collect(Collectors.toList());
 
              String b = ids.toString();
-             PublishRequest publishRequest = null;
-             for(String id :ids) {
-            	 publishRequest = new PublishRequest(topicArn, id);
-                 logger.info("ALL the users Bills are " + b);
-             }
-            
+     
+             final PublishRequest publishRequest = new PublishRequest(topicArn, b);
+             logger.info("ALL the users Bills are " + b);
              SendMessageResult result1 = amazonSQS.sendMessage(sqsURL,b);
              logger.info("SQS Message1 ID:                  " + result1.getMessageId());
 			
 			
 			//////////////
 			
-			PublishResult publishResponse = snsClient.publish(publishRequest);
+			final PublishResult publishResponse = snsClient.publish(publishRequest);
 			return new ResponseEntity<List<Map<String, Object>>>(allBills, HttpStatus.OK);
 		}
 	}
