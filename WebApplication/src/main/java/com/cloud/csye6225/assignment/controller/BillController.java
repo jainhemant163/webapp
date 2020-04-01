@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
+import javax.persistence.Entity;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -620,16 +621,24 @@ public class BillController {
 //			final PublishRequest publishRequest = new PublishRequest(topicArn, demo);
 			
 			//Testing code for all bills to publish
-             String b = bills.toString();
-             final PublishRequest publishRequest = new PublishRequest(topicArn, b);
-             logger.info("ALL the users Bills are " + b);
+			// get a collection of all the ids.
+			List<String> ids = bills.stream()
+			                         .map(Bill::getId).collect(Collectors.toList());
+
+             String b = ids.toString();
+             PublishRequest publishRequest = null;
+             for(String id :ids) {
+            	 publishRequest = new PublishRequest(topicArn, id);
+                 logger.info("ALL the users Bills are " + b);
+             }
+            
              SendMessageResult result1 = amazonSQS.sendMessage(sqsURL,b);
              logger.info("SQS Message1 ID:                  " + result1.getMessageId());
 			
 			
 			//////////////
 			
-			final PublishResult publishResponse = snsClient.publish(publishRequest);
+			PublishResult publishResponse = snsClient.publish(publishRequest);
 			return new ResponseEntity<List<Map<String, Object>>>(allBills, HttpStatus.OK);
 		}
 	}
