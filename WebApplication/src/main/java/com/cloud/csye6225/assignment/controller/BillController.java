@@ -572,7 +572,7 @@ public class BillController {
 				float daysBetween = (difference / (1000 * 60 * 60 * 24));
 
 				System.out.println("Days in Between " + daysBetween);
-				if (daysBetween == Integer.parseInt(x)) {
+				if (daysBetween <= Integer.parseInt(x)) {
 					Map<String, Object> newBill = new HashMap<>();
 					newBill.put("id", billById.getId());
 					newBill.put("created_ts", billById.getCreated_ts());
