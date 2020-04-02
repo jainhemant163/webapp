@@ -62,6 +62,9 @@ import com.amazonaws.services.sns.model.PublishRequest;
 import com.amazonaws.services.sns.model.PublishResult;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
+import com.amazonaws.services.sqs.model.DeleteMessageRequest;
+import com.amazonaws.services.sqs.model.Message;
+import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageResult;
 import com.cloud.csye6225.assignment.entity.Bill;
 import com.cloud.csye6225.assignment.entity.FileUpload;
@@ -132,6 +135,11 @@ public class BillController {
 	private String sqsUrl;
 
 	private final static Logger logger = LoggerFactory.getLogger(BillController.class);
+	
+	AWSCredentialsProvider awsCredentialsProvider = new AWSStaticCredentialsProvider(
+			new BasicAWSCredentials(this.accessKey, this.secretKey));
+
+	AmazonSQS amazonSQS = AmazonSQSClientBuilder.standard().withCredentials(awsCredentialsProvider).build();
 
 	@PostMapping("/v1/bill/fileupload")
 	public String uploadFile(@RequestPart(value = "file") MultipartFile file) {
@@ -522,6 +530,15 @@ public class BillController {
 		}
 
 	}
+	
+	
+
+	   private void deleteMessage(Message messageObject) {
+
+	        final String messageReceiptHandle = messageObject.getReceiptHandle();
+	        amazonSQS.deleteMessage(new DeleteMessageRequest(sqsUrl, messageReceiptHandle));
+
+	    }
 
 	////// Get the Due Bills to the corresponding email id
 
@@ -531,15 +548,16 @@ public class BillController {
 			throws ParseException, JsonMappingException, JsonProcessingException {
 
 		Stopwatch stopwatch = Stopwatch.createStarted();
-
-		AWSCredentialsProvider awsCredentialsProvider = new AWSStaticCredentialsProvider(
-				new BasicAWSCredentials(this.accessKey, this.secretKey));
-
-		AmazonSQS amazonSQS = AmazonSQSClientBuilder.standard().withCredentials(awsCredentialsProvider).build();
-		logger.info("Sending SQS message ");
+		
+//		AWSCredentialsProvider awsCredentialsProvider = new AWSStaticCredentialsProvider(
+//				new BasicAWSCredentials(this.accessKey, this.secretKey));
+//
+//		AmazonSQS amazonSQS = AmazonSQSClientBuilder.standard().withCredentials(awsCredentialsProvider).build();
+		
+		//logger.info("Sending SQS message ");
 		String sqsURL = sqsUrl;
-		SendMessageResult result = amazonSQS.sendMessage(sqsURL, "Bills that are due in : " + x + " days");
-		logger.info("SQS Message ID: " + result.getMessageId());
+		//SendMessageResult result = amazonSQS.sendMessage(sqsURL, "Bills that are due in : " + x + " days");
+		//logger.info("SQS Message ID: " + result.getMessageId());
 
 		logger.info("Fetching all bills by due date");
 		statsDClient.incrementCounter("endpoint.v1.bill.due.x.api.get");
@@ -616,14 +634,47 @@ public class BillController {
 
 			String email = account.getEmail();
 			String b = DomainName + "," + email + "," + ids.toString();
-			final PublishRequest publishRequest = new PublishRequest(topicArn, b);
+			
+			
+			
 			logger.info("ALL the users Bills are " + b);
+			
+			//Send Messages To SQS QUEUE
 			SendMessageResult result1 = amazonSQS.sendMessage(sqsURL, b);
 			logger.info("SQS Message1 ID:                  " + result1.getMessageId());
 
-			final PublishResult publishResponse = snsClient.publish(publishRequest);
-			return new ResponseEntity<List<Map<String, Object>>>(allBills, HttpStatus.OK);
+			
+			//Polling SQS QUEUE
+			 final ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(sqsUrl)
+		                .withMaxNumberOfMessages(1)
+		                .withWaitTimeSeconds(3);
+
+		        while (true) {
+
+		            final List<Message> messages = amazonSQS.receiveMessage(receiveMessageRequest).getMessages();
+
+		            for (Message messageObject : messages) {
+		                String message = messageObject.getBody();
+
+		                logger.info("Received message: " + message);
+
+		                deleteMessage(messageObject);
+		              //Publish Messages on SNS TOPIC
+						final PublishRequest publishRequest = new PublishRequest(topicArn,message);
+						final PublishResult publishResponse = snsClient.publish(publishRequest);
+						
+					return new ResponseEntity<List<Map<String, Object>>>(allBills, HttpStatus.OK);
+		            }
+		           
+		        }
+		        
+		        
+		    //  return new ResponseEntity<List<Map<String, Object>>>(allBills, HttpStatus.OK);
+				
+			
 		}
+		
 	}
+	
 
 }
