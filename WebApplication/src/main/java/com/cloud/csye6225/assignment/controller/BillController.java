@@ -560,6 +560,8 @@ public class BillController {
 		logger.info("Fetching all bills by due date");
 		statsDClient.incrementCounter("endpoint.v1.bill.due.x.api.get");
 
+		List<Map<String, Object>> allBills;
+		
 		Collection<Bill> bills = null;
 		// check whether user logged in using the basic auth credentials or not
 		if (SecurityContextHolder.getContext().getAuthentication() != null
@@ -575,7 +577,7 @@ public class BillController {
 
 			bills = bills1.stream().filter(p -> p.getOwner_id().equals(account.getId())).collect(Collectors.toList());
 
-			List<Map<String, Object>> allBills = new ArrayList<>();
+			allBills = new ArrayList<>();
 
 			for (Bill billById : bills) {
 				Date today = new Date();
@@ -661,7 +663,7 @@ public class BillController {
 						final PublishRequest publishRequest = new PublishRequest(topicArn,message);
 						final PublishResult publishResponse = snsClient.publish(publishRequest);
 						
-					return new ResponseEntity<List<Map<String, Object>>>(allBills, HttpStatus.OK);
+					
 		            }
 		           
 		        }
@@ -671,6 +673,7 @@ public class BillController {
 				
 			
 		}
+		return new ResponseEntity<List<Map<String, Object>>>(allBills, HttpStatus.OK);
 		
 	}
 	
