@@ -646,7 +646,7 @@ public class BillController {
 		                .withMaxNumberOfMessages(20)
 		                .withWaitTimeSeconds(10);
 
-		        while (true) {
+		        while (receiveMessageRequest !=null) {
 
 		            final List<Message> messages = amazonSQS.receiveMessage(receiveMessageRequest).getMessages();
 
