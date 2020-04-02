@@ -640,14 +640,13 @@ public class BillController {
 			//Send Messages To SQS QUEUE
 			SendMessageResult result1 = amazonSQS.sendMessage(sqsURL, b);
 			logger.info("SQS Message1 ID:                  " + result1.getMessageId());
-
 			
 			//Polling SQS QUEUE
 			 final ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(sqsUrl)
-		                .withMaxNumberOfMessages(1)
-		                .withWaitTimeSeconds(3);
+		                .withMaxNumberOfMessages(20)
+		                .withWaitTimeSeconds(10);
 
-		        while (true) {
+		        while (receiveMessageRequest !=null) {
 
 		            final List<Message> messages = amazonSQS.receiveMessage(receiveMessageRequest).getMessages();
 
@@ -656,6 +655,7 @@ public class BillController {
 
 		                logger.info("Received message: " + message);
 
+		                //Delete the SQS Queue message
 		                deleteMessage(messageObject,amazonSQS);
 		              //Publish Messages on SNS TOPIC
 						final PublishRequest publishRequest = new PublishRequest(topicArn,message);
