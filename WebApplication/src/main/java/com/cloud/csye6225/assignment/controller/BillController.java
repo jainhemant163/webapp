@@ -645,8 +645,8 @@ public class BillController {
 			
 			//Polling SQS QUEUE
 			 final ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(sqsUrl)
-		                .withMaxNumberOfMessages(5)
-		                .withWaitTimeSeconds(10);
+		                .withMaxNumberOfMessages(10)
+		                .withWaitTimeSeconds(1);
 
 		        while (receiveMessageRequest !=null) {
 
