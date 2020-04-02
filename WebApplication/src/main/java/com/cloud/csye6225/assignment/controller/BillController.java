@@ -136,10 +136,10 @@ public class BillController {
 
 	private final static Logger logger = LoggerFactory.getLogger(BillController.class);
 	
-	AWSCredentialsProvider awsCredentialsProvider = new AWSStaticCredentialsProvider(
-			new BasicAWSCredentials(this.accessKey, this.secretKey));
-
-	AmazonSQS amazonSQS = AmazonSQSClientBuilder.standard().withCredentials(awsCredentialsProvider).build();
+//	AWSCredentialsProvider awsCredentialsProvider = new AWSStaticCredentialsProvider(
+//			new BasicAWSCredentials(accessKey,secretKey));
+//
+//	AmazonSQS amazonSQS = AmazonSQSClientBuilder.standard().withCredentials(awsCredentialsProvider).build();
 
 	@PostMapping("/v1/bill/fileupload")
 	public String uploadFile(@RequestPart(value = "file") MultipartFile file) {
@@ -530,10 +530,8 @@ public class BillController {
 		}
 
 	}
-	
-	
 
-	   private void deleteMessage(Message messageObject) {
+	   private void deleteMessage(Message messageObject,AmazonSQS amazonSQS) {
 
 	        final String messageReceiptHandle = messageObject.getReceiptHandle();
 	        amazonSQS.deleteMessage(new DeleteMessageRequest(sqsUrl, messageReceiptHandle));
@@ -549,10 +547,10 @@ public class BillController {
 
 		Stopwatch stopwatch = Stopwatch.createStarted();
 		
-//		AWSCredentialsProvider awsCredentialsProvider = new AWSStaticCredentialsProvider(
-//				new BasicAWSCredentials(this.accessKey, this.secretKey));
-//
-//		AmazonSQS amazonSQS = AmazonSQSClientBuilder.standard().withCredentials(awsCredentialsProvider).build();
+		AWSCredentialsProvider awsCredentialsProvider = new AWSStaticCredentialsProvider(
+				new BasicAWSCredentials(this.accessKey, this.secretKey));
+
+		AmazonSQS amazonSQS = AmazonSQSClientBuilder.standard().withCredentials(awsCredentialsProvider).build();
 		
 		//logger.info("Sending SQS message ");
 		String sqsURL = sqsUrl;
@@ -658,7 +656,7 @@ public class BillController {
 
 		                logger.info("Received message: " + message);
 
-		                deleteMessage(messageObject);
+		                deleteMessage(messageObject,amazonSQS);
 		              //Publish Messages on SNS TOPIC
 						final PublishRequest publishRequest = new PublishRequest(topicArn,message);
 						final PublishResult publishResponse = snsClient.publish(publishRequest);
