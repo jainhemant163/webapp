@@ -538,8 +538,8 @@ public class BillController {
 		AmazonSQS amazonSQS = AmazonSQSClientBuilder.standard().withCredentials(awsCredentialsProvider).build();
 		logger.info("Sending SQS message ");
 		String sqsURL = sqsUrl;
-		SendMessageResult result = amazonSQS.sendMessage(sqsURL, "Bills that are due in : " + x + " days");
-		logger.info("SQS Message ID: " + result.getMessageId());
+//		SendMessageResult result = amazonSQS.sendMessage(sqsURL, "Bills that are due in : " + x + " days");
+//		logger.info("SQS Message ID: " + result.getMessageId());
 
 		logger.info("Fetching all bills by due date");
 		statsDClient.incrementCounter("endpoint.v1.bill.due.x.api.get");
