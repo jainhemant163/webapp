@@ -125,6 +125,12 @@ public class BillController {
 	@Value("${secretKey}")
 	private String secretKey;
 
+	@Value("${DomainName}")
+	private String DomainName;
+
+	@Value("${sqsUrl}")
+	private String sqsUrl;
+
 	private final static Logger logger = LoggerFactory.getLogger(BillController.class);
 
 	@PostMapping("/v1/bill/fileupload")
@@ -531,12 +537,12 @@ public class BillController {
 
 		AmazonSQS amazonSQS = AmazonSQSClientBuilder.standard().withCredentials(awsCredentialsProvider).build();
 		logger.info("Sending SQS message ");
-		String sqsURL = "https://sqs.us-east-1.amazonaws.com/524398358661/SampleQueue";
+		String sqsURL = sqsUrl;
 		SendMessageResult result = amazonSQS.sendMessage(sqsURL, "Bills that are due in : " + x + " days");
 		logger.info("SQS Message ID: " + result.getMessageId());
 
 		logger.info("Fetching all bills by due date");
-		statsDClient.incrementCounter("GET /v1/bills/due/x");
+		statsDClient.incrementCounter("endpoint.v1.bill.due.x.api.get");
 
 		Collection<Bill> bills = null;
 		// check whether user logged in using the basic auth credentials or not
@@ -553,12 +559,6 @@ public class BillController {
 
 			bills = bills1.stream().filter(p -> p.getOwner_id().equals(account.getId())).collect(Collectors.toList());
 
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        Users users = userRepository.findByEmailAddress(authentication.getName());
-//
-//        List<Bill> bills = billRepo.findBillsByOwnerId(users.getId());
-//        
-
 			List<Map<String, Object>> allBills = new ArrayList<>();
 
 			for (Bill billById : bills) {
@@ -566,7 +566,6 @@ public class BillController {
 				SimpleDateFormat myFormat = new SimpleDateFormat("yyyy-MM-dd");
 
 				Date dateAfter = new SimpleDateFormat("yyyy-MM-dd").parse(billById.getDue_date());
-				// Date dateAfter = billById.getDue_date();
 
 				long difference = dateAfter.getTime() - today.getTime();
 				System.out.println("Difference" + difference);
@@ -594,29 +593,21 @@ public class BillController {
 						newBill.put("attachment", "");
 					}
 
-//                List<String> allCategories = new ArrayList<>();
-//                if (billById.getCategories().contains(",")) {
-//                    for (String category : billById.getCategories().split(",")) {
-//                        allCategories.add(category);
-//                    }
-//                } else
-//                    allCategories.add(billById.getCategories());
-//                newBill.put("categories", allCategories);
-//                newBill.put("paymentStatus", billById.getPaymentStatus());
 					Stopwatch stopwatch1 = Stopwatch.createStarted();
 					allBills.add(newBill);
 					stopwatch1.stop();
+					
 					statsDClient.recordExecutionTime("get.bills.api.call.dbquery",
 							stopwatch1.elapsed(TimeUnit.MILLISECONDS));
 				}
 
 			}
 			stopwatch.stop();
-			statsDClient.recordExecutionTime("get.bills.api.call", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+			
+			statsDClient.recordExecutionTime("timerGet.v1.bills.due.x.api.delete",
+					stopwatch.elapsed(TimeUnit.MILLISECONDS));
+	
 			AmazonSNS snsClient = AmazonSNSClientBuilder.defaultClient();
-
-//			String demo = account.getEmail();
-//			final PublishRequest publishRequest = new PublishRequest(topicArn, demo);
 
 			// Testing code for all bills to publish
 			Collection<String> ids = bills.stream().map(Bill::getId).collect(Collectors.toList());
@@ -624,13 +615,11 @@ public class BillController {
 			System.out.println(ids);
 
 			String email = account.getEmail();
-			String b = email + "," + ids.toString();
+			String b = DomainName + "," + email + "," + ids.toString();
 			final PublishRequest publishRequest = new PublishRequest(topicArn, b);
 			logger.info("ALL the users Bills are " + b);
 			SendMessageResult result1 = amazonSQS.sendMessage(sqsURL, b);
 			logger.info("SQS Message1 ID:                  " + result1.getMessageId());
-
-			//////////////
 
 			final PublishResult publishResponse = snsClient.publish(publishRequest);
 			return new ResponseEntity<List<Map<String, Object>>>(allBills, HttpStatus.OK);
