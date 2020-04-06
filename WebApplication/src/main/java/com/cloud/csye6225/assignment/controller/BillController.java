@@ -560,6 +560,7 @@ public class BillController {
 			bills = bills1.stream().filter(p -> p.getOwner_id().equals(account.getId())).collect(Collectors.toList());
 
 			List<Map<String, Object>> allBills = new ArrayList<>();
+			List<String> ids = new ArrayList<String>();
 
 			for (Bill billById : bills) {
 				Date today = new Date();
@@ -569,10 +570,19 @@ public class BillController {
 
 				long difference = dateAfter.getTime() - today.getTime();
 				System.out.println("Difference" + difference);
+
 				float daysBetween = (difference / (1000 * 60 * 60 * 24));
 
+				long diff = TimeUnit.DAYS.convert(difference, TimeUnit.MILLISECONDS);
+
 				System.out.println("Days in Between " + daysBetween);
-				if (daysBetween <= Integer.parseInt(x)) {
+				System.out.println("Integer.parseInt(x) -- " + Integer.parseInt(x));
+				System.out.println("diff -- " + diff);
+				System.out.println("diff <= Integer.parseInt(x) -- " + (diff <= Integer.parseInt(x)));
+				if (diff <= Integer.parseInt(x)) {
+
+					ids.add(billById.getId());
+
 					Map<String, Object> newBill = new HashMap<>();
 					newBill.put("id", billById.getId());
 					newBill.put("created_ts", billById.getCreated_ts());
@@ -596,21 +606,22 @@ public class BillController {
 					Stopwatch stopwatch1 = Stopwatch.createStarted();
 					allBills.add(newBill);
 					stopwatch1.stop();
-					
+
 					statsDClient.recordExecutionTime("get.bills.api.call.dbquery",
 							stopwatch1.elapsed(TimeUnit.MILLISECONDS));
 				}
 
 			}
 			stopwatch.stop();
-			
+
 			statsDClient.recordExecutionTime("timerGet.v1.bills.due.x.api.delete",
 					stopwatch.elapsed(TimeUnit.MILLISECONDS));
-	
+
 			AmazonSNS snsClient = AmazonSNSClientBuilder.defaultClient();
 
 			// Testing code for all bills to publish
-			Collection<String> ids = bills.stream().map(Bill::getId).collect(Collectors.toList());
+
+		//Collection<String> ids =bills.stream().map(Bill::getId).collect(Collectors.toList());
 
 			System.out.println(ids);
 
