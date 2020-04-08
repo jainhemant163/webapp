@@ -579,7 +579,7 @@ public class BillController {
 				System.out.println("Integer.parseInt(x) -- " + Integer.parseInt(x));
 				System.out.println("diff -- " + diff);
 				System.out.println("diff <= Integer.parseInt(x) -- " + (diff <= Integer.parseInt(x)));
-				if (diff <= Integer.parseInt(x)) {
+				if (diff <= Integer.parseInt(x) && diff>=0) {
 
 					ids.add(billById.getId());
 
