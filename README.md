@@ -7,7 +7,7 @@ Hemant Jain 001305974 jain.he@husky.neu.edu
 # UNIVERSITY STUDENT BILL MANAGEGMENT SYSTEM
 
 ## Technology Stack
-Springboot, Maven, MySQL, GitHub Account, Apache Tomcat Server, Hashing Techniques,Salting Using Bcrypt Algorithm, AWS Cloud Services namely - VPC, Subnets,Internet Gateway, Route53,CloudFormation, S3 Bucket, Auto Scaling,Load Balancing,Configuration Management, CloudWatch, Log Management, SQS, SES, SNS, Lambda, ACM Certificate Management, Security Group Configuration and Management, RDS, DynamoDB.
+Springboot<br/>, Maven<br/>, MySQL<br/>, GitHub Account<br/>, Apache Tomcat Server<br/>, Hashing Techniques<br/>,Salting Using Bcrypt Algorithm<br/>, AWS Cloud Services namely - VPC, Subnets,Internet Gateway, Route53,CloudFormation, S3 Bucket, Auto Scaling,Load Balancing,Configuration Management, CloudWatch, Log Management, SQS, SES, SNS, Lambda, ACM Certificate Management, Security Group Configuration and Management, RDS, DynamoDB.
 
 ## Build Instructions
 WebApp --> Import the project using the existing maven project, and find the class having the main method to run the SpringBoot Application. 
