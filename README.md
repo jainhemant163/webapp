@@ -7,20 +7,20 @@ Hemant Jain 001305974 jain.he@husky.neu.edu
 # UNIVERSITY STUDENT BILL MANAGEGMENT SYSTEM
 
 ## Technology Stack
-Springboot<br/>, Maven<br/>, MySQL<br/>, GitHub Account<br/>, Apache Tomcat Server<br/>, Hashing Techniques<br/>,Salting Using Bcrypt Algorithm<br/>, AWS Cloud Services namely - VPC, Subnets,Internet Gateway, Route53,CloudFormation, S3 Bucket, Auto Scaling,Load Balancing,Configuration Management, CloudWatch, Log Management, SQS, SES, SNS, Lambda, ACM Certificate Management, Security Group Configuration and Management, RDS, DynamoDB.
+Springboot<br/> Maven<br/> MySQL<br/> GitHub Account<br/> Apache Tomcat Server<br/> Hashing Techniques<br/> Salting Using Bcrypt Algorithm<br/> AWS Cloud Services namely - VPC, Subnets,Internet Gateway, Route53,CloudFormation, S3 Bucket, Auto Scaling,Load Balancing,Configuration Management, CloudWatch, Log Management, SQS, SES, SNS, Lambda, ACM Certificate Management, Security Group Configuration and Management, RDS, DynamoDB.
 
 ## Build Instructions
-WebApp --> Import the project using the existing maven project, and find the class having the main method to run the SpringBoot Application. 
-Before running your SpringBoot application make sure the connection properties mentioned in the application.properties file for the MySQL server is up and running properly.
-Once,your application shows that application running successfully on the port 8080 of the Tomcat Server,we can move ahead and do all the API's application testing using the Postman tools for the various REST API Calls.
+WebApp --> Import the project using the existing maven project, and find the class having the main method to run the SpringBoot Application.<br/>
+Before running your SpringBoot application make sure the connection properties mentioned in the application.properties file for the MySQL server is up and running properly.<br/>
+Once,your application shows that application running successfully on the port 8080 of the Tomcat Server,we can move ahead and do all the API's application testing using the Postman tools for the various REST API Calls.<br/>
 
-Added Webapplication folder inside webapp repository. Designed and implemented the following folders:
-1)Dao 2)Sql 3) Authentication 4) controller 5) entity 6)query  7)service 8)util 
+Added Webapplication folder inside webapp repository. Designed and implemented the following folders:<br/>
+1)Dao<br/> 2)Sql<br/> 3) Authentication<br/> 4) controller<br/> 5) entity<br/> 6)query<br/> 7)service<br/> 8)util<br/>
 
-Following API are implemented in this complete web application using Spring Boot framework and AWS SDKs.
+Following API are implemented in this complete web application using Spring Boot framework and AWS SDKs.<br/>
 
-1.GET /v1/user/self                          Get User Information
-2.PUT /v1/user/self                          Update user information
+1.GET /v1/user/self<br/>                          Get User Information<br/>
+2.PUT /v1/user/self <br/>                         Update user information<br/>
 3.POST /v1/bill/                             Create a new bill
 4.GET /v1/bills                              Get all bills.
 5.DELETE /v1/bill/{id}                       Get a bill
