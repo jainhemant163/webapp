@@ -169,13 +169,18 @@ example: 2020-01-12
 }
 
 ## Deploy Instructions
-
-MySQL port is default 3306 .
-
-Server: server side as RESTful architectural style. As a default, it is listening at http://localhost:8080/
+   MySQL port is default 3306  
+   Server: server side as RESTful architectural style. As a default, it is listening at http://localhost:8080/
+   Code Deploy for AMI --> Code Deploy for Lambda Function --> Code Deploy for WebApp
 
 ## Running Tests
-
-Our test files are in the file "src/test", all the functional tests and module tests are included in this file.
+   Our test files are in the file "src/test", all the functional tests and module tests are included in this file.
+   Check for valid email ID. 
+   Check for stacks creation and deletion
 
 ## CI/CD
+### Create the CI-CI stack 
+### Create the networking stack
+### Trigger the build for circleci using the curl command
+### Create the application Stack
+### Trigger the build for circleci using the curl command to deploy the code in ubuntu ami built.
