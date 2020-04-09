@@ -167,3 +167,15 @@ upload_date*	string($date)
 readOnly: true
 example: 2020-01-12
 }
+
+## Deploy Instructions
+
+MySQL port is default 3306 .
+
+Server: server side as RESTful architectural style. As a default, it is listening at http://localhost:8080/
+
+## Running Tests
+
+Our test files are in the file "src/test", all the functional tests and module tests are included in this file.
+
+## CI/CD
