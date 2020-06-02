@@ -173,10 +173,33 @@ example: 2020-01-12
    Server: server side as RESTful architectural style. As a default, it is listening at http://localhost:8080/ <br/>
    Code Deploy for AMI     --> Code Deploy for Lambda Function       --> Code Deploy for WebApp
 
-## Running Tests
-   Our test files are in the file "src/test", all the functional tests and module tests are included in this file.<br/>
-   Check for valid email ID. <br/>
-   Check for stacks creation and deletion<br/>
+## DNS Setup
+### Create hosted zone for domain in ROOT AWS account
+1. Register a domain name with a domain registrar such as Namecheap
+2. Create a public hosted zone in Amazon Route 53.
+3. Configure Namecheap to use custom nameservers provided by Amazon Route 53 to use the Route53 nameservers.
+4. Create a type TXT record for your domain with TTL of 1 minute. Type TXT record should contain the text value "csye6225-spring2020"
+
+### Create subdomain and hosted zone for DEV AWS account
+1. Create a public hosted zone in Amazon Route 53 for the subdomain dev.yourdomainname.tld.
+2. Configure nameservers for the subdomain in the root account. See docs.
+3. Create a type TXT record for the subdomain with TTL of 1 minute. Type TXT record should contain the text value "csye6225-spring2020-dev".
+
+### Create subdomain and hosted zone for PROD AWS account
+1. Create a public hosted zone in Amazon Route 53 for the subdomain prod.yourdomainname.tld.
+2. Configure nameservers for the subdomain in the root account. See docs.
+3. Create a type TXT record for the subdomain with TTL of 1 minute. Type TXT record should contain the text value "csye6225-spring2020-prod".
+
+### DNS updates to host application on cloud using load balancer
+1. Route53 resource record for your domain name should now be an alias for your load balancer application.
+2. Your CloudFormation template should configure Route53 so that your domain points to your load balancer and your web application is accessible thru http://your-domain-name.tld/.
+3. Your application must be accessible using root context i.e. https://your-domain-name.tld/ and not https://your-domain-name.tld/app-0.1/
+
+## JMeter Load Testing Script
+1. Using Apache JMeter create tests that can be run against your application APIs.
+2. JMeter tests need to make 500 concurrent API calls to your application to create bills.
+3. All bills can be created under a single user account and the user account itself can be created via API call made outside of JMeter.
+
 
 ## CI/CD
 Create the CI-CI stack <br/>
