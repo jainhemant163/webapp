@@ -33,7 +33,7 @@ VPC, Subnets,Internet Gateway, Route53,CloudFormation, S3 Bucket, Auto Scaling,L
 
 # Architecture Design
 
-![](images/Architecture-Diagram.png)
+![] (images/Architecture-Diagram.png)
 
 ## Build Instructions
 WebApp --> Import the project using the existing maven project, and find the class having the main method to run the SpringBoot Application.<br/>
