@@ -220,7 +220,7 @@ example: 2020-01-12
 
 
 
-![](https://github.com/jainhemant163/webapp/images/Circle-CI-Integration.PNG)
+![Circle-CI-Integration](/images/Circle-CI-Integration.PNG)
 
 
 
@@ -247,4 +247,4 @@ example: 2020-01-12
 * Once message is published to SNS Topic, subscribed lambda function is trigged 
 * Lambda delivers due bills email to requesting user and saves the entry in Dynamo DB with TTL of 60 minutes
 
-![](https://github.com/jainhemant163/webapp/images/Serverless-Computing.PNG)
+![Serverless-Computing](/images/Serverless-Computing.PNG)
