@@ -34,7 +34,7 @@ VPC, Subnets,Internet Gateway, Route53,CloudFormation, S3 Bucket, Auto Scaling,L
 # Architecture Design
 
 
-![](https://github.com/jainhemant163/webapp/images/Architecture-Diagram.PNG)
+![Architecture-Diagram](/images/Architecture-Diagram.PNG)
 
 
 
