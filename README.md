@@ -33,7 +33,10 @@ VPC, Subnets,Internet Gateway, Route53,CloudFormation, S3 Bucket, Auto Scaling,L
 
 # Architecture Design
 
+
 ![](images/Architecture-Diagram.png)
+
+
 
 ## Build Instructions
 WebApp --> Import the project using the existing maven project, and find the class having the main method to run the SpringBoot Application.<br/>
@@ -215,7 +218,12 @@ example: 2020-01-12
 * Artifact is copied to S3 bucket and code deployement is triggered on running instances of autoscaling group
 * In-Place deployment configuration hooks are placed for routing the traffic during deployment
 
+
+
 ![](images/Circle-CI-Integration.png)
+
+
+
 
 ## Logging & Alerting - Cloud Watch Services
 
@@ -225,7 +233,12 @@ example: 2020-01-12
 
 ## Serverless Computing - Lambda 
 
+
+
 [Serverless Lambda Code Repository](https://github.com/jainhemant163/serverless)
+
+
+
 
 * Implemented pub/sub mechanism with SNS and Lambda function
 * user requesting for his due bills, puts a message onto the AWS SQS service
